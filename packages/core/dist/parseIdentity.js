@@ -1,32 +1,29 @@
+import { parseGS1 } from "./gs1.js";
 export function parseIdentity(raw) {
+    const values = parseGS1(raw);
     const result = {
         raw,
         identifierType: "unknown"
     };
-    const gtinMatch = raw.match(/01(\d{14})/);
-    if (gtinMatch) {
-        result.gtin = gtinMatch[1];
-    }
-    const serialMatch = raw.match(/21([A-Za-z0-9]+)/);
-    if (serialMatch) {
-        result.serial = serialMatch[1];
-    }
-    const lotMatch = raw.match(/10([A-Za-z0-9]+)/);
-    if (lotMatch) {
-        result.lot = lotMatch[1];
-    }
-    const expirationMatch = raw.match(/17(\d{6})/);
-    if (expirationMatch) {
-        result.expiration =
-            expirationMatch[1];
+    for (const item of values) {
+        if (item.name === "gtin") {
+            result.gtin = item.value;
+        }
+        if (item.name === "serial") {
+            result.serial = item.value;
+        }
+        if (item.name === "lot") {
+            result.lot = item.value;
+        }
+        if (item.name === "expiration") {
+            result.expiration = item.value;
+        }
     }
     if (result.serial) {
-        result.identifierType =
-            "serialized";
+        result.identifierType = "serialized";
     }
     else if (result.lot) {
-        result.identifierType =
-            "lot-tracked";
+        result.identifierType = "lot-tracked";
     }
     return result;
 }

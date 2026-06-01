@@ -1,6 +1,10 @@
 import { parseIdentity } from "./parseIdentity.js";
 import { ParsedIdentity } from "./types.js";
 
+function toSgtinEpc(gtin: string, serial: string): string {
+  return `urn:epc:id:sgtin:${gtin}.${serial}`;
+}
+
 export class SerializedItem {
   readonly raw: string;
   readonly gtin?: string;
@@ -29,6 +33,14 @@ export class SerializedItem {
     return Boolean(this.lot) && !this.serial;
   }
 
+  toEpcUri(): string | undefined {
+    if (!this.gtin || !this.serial) {
+      return undefined;
+    }
+
+    return toSgtinEpc(this.gtin, this.serial);
+  }
+
   toJSON() {
     return {
       raw: this.raw,
@@ -36,6 +48,7 @@ export class SerializedItem {
       serial: this.serial,
       lot: this.lot,
       expiration: this.expiration,
+      epcUri: this.toEpcUri(),
       isSerialized: this.isSerialized(),
       isLotTracked: this.isLotTracked()
     };

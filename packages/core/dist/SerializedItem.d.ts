@@ -9,12 +9,14 @@ export declare class SerializedItem {
     static fromBarcode(raw: string): SerializedItem;
     isSerialized(): boolean;
     isLotTracked(): boolean;
+    toEpcUri(): string | undefined;
     toJSON(): {
         raw: string;
         gtin: string | undefined;
         serial: string | undefined;
         lot: string | undefined;
         expiration: string | undefined;
+        epcUri: string | undefined;
         isSerialized: boolean;
         isLotTracked: boolean;
     };

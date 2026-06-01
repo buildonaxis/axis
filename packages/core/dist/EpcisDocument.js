@@ -1,5 +1,14 @@
 export class EpcisDocument {
-    events = [];
+    header;
+    schemaVersion;
+    creationDate;
+    events;
+    constructor(input = {}) {
+        this.header = input.header;
+        this.events = input.events ?? [];
+        this.schemaVersion = input.schemaVersion ?? "2.0";
+        this.creationDate = input.creationDate ?? new Date().toISOString();
+    }
     addEvent(event) {
         this.events.push(event);
     }
@@ -26,7 +35,13 @@ export class EpcisDocument {
     }
     toJSON() {
         return {
-            events: this.events.map((event) => event.toJSON())
+            type: "EPCISDocument",
+            schemaVersion: this.schemaVersion,
+            creationDate: this.creationDate,
+            epcisHeader: this.header?.toJSON(),
+            epcisBody: {
+                eventList: this.events.map((event) => event.toJSON())
+            }
         };
     }
 }

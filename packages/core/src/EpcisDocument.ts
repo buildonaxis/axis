@@ -1,9 +1,28 @@
+import { EpcisHeader } from "./EpcisHeader.js";
+
 export type EpcisDocumentEvent = {
   toJSON: () => unknown;
 };
 
+export interface EpcisDocumentInput {
+  header?: EpcisHeader;
+  events?: EpcisDocumentEvent[];
+  schemaVersion?: string;
+  creationDate?: string;
+}
+
 export class EpcisDocument {
-  events: EpcisDocumentEvent[] = [];
+  readonly header?: EpcisHeader;
+  readonly schemaVersion: string;
+  readonly creationDate: string;
+  events: EpcisDocumentEvent[];
+
+  constructor(input: EpcisDocumentInput = {}) {
+    this.header = input.header;
+    this.events = input.events ?? [];
+    this.schemaVersion = input.schemaVersion ?? "2.0";
+    this.creationDate = input.creationDate ?? new Date().toISOString();
+  }
 
   addEvent(event: EpcisDocumentEvent): void {
     this.events.push(event);
@@ -41,7 +60,13 @@ export class EpcisDocument {
 
   toJSON() {
     return {
-      events: this.events.map((event) => event.toJSON())
+      type: "EPCISDocument",
+      schemaVersion: this.schemaVersion,
+      creationDate: this.creationDate,
+      epcisHeader: this.header?.toJSON(),
+      epcisBody: {
+        eventList: this.events.map((event) => event.toJSON())
+      }
     };
   }
 }

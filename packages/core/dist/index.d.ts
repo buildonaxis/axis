@@ -6,3 +6,5 @@ export * from "./TraceEvent.js";
 export * from "./ObjectEvent.js";
 export * from "./AggregationEvent.js";
 export * from "./events.js";
+export * from "./Aggregation.js";
+export * from "./EpcisDocument.js";

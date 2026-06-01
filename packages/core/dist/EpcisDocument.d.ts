@@ -7,6 +7,10 @@ export declare class EpcisDocument {
     object(input: {
         epc: string;
     }): EpcisDocumentEvent;
+    aggregate(input: {
+        parent: string;
+        children: string[];
+    }): EpcisDocumentEvent;
     toJSON(): {
         events: unknown[];
     };

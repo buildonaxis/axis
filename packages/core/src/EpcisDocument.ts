@@ -22,6 +22,23 @@ export class EpcisDocument {
     return event;
   }
 
+  aggregate(input: {
+    parent: string;
+    children: string[];
+  }) {
+    const event: EpcisDocumentEvent = {
+      toJSON: () => ({
+        eventType: "AggregationEvent",
+        parentID: input.parent,
+        childEPCs: input.children
+      })
+    };
+
+    this.addEvent(event);
+
+    return event;
+  }
+
   toJSON() {
     return {
       events: this.events.map((event) => event.toJSON())

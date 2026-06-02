@@ -1,3 +1,5 @@
+import { ObjectEvent } from "./ObjectEvent.js";
+import { AggregationEvent } from "./AggregationEvent.js";
 export class EpcisBody {
     events;
     constructor(input = {}) {
@@ -12,5 +14,24 @@ export class EpcisBody {
         return {
             eventList: this.events.map((event) => event.toJSON())
         };
+    }
+    static parse(input) {
+        if (typeof input !== "object" ||
+            input === null) {
+            throw new Error("Invalid EPCIS body");
+        }
+        const body = input;
+        const events = (body.eventList ?? []).map((event) => {
+            if (event.eventType === "ObjectEvent") {
+                return ObjectEvent.parse(event);
+            }
+            if (event.eventType === "AggregationEvent") {
+                return AggregationEvent.parse(event);
+            }
+            throw new Error(`Unsupported event type: ${String(event.eventType)}`);
+        });
+        return new EpcisBody({
+            events
+        });
     }
 }

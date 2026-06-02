@@ -19,6 +19,7 @@ export declare class ObjectEvent {
     readonly items: SerializedItem[];
     constructor(input: ObjectEventInput);
     get epcList(): string[];
+    static parse(input: unknown): ObjectEvent;
     toJSON(): {
         eventType: string;
         action: "ADD" | "OBSERVE" | "DELETE";

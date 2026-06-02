@@ -1,40 +1,61 @@
 import { describe, expect, it } from "vitest";
 import { EpcisDocument } from "./EpcisDocument.js";
+import { EpcisBody } from "./EpcisBody.js";
+import { EpcisHeader } from "./EpcisHeader.js";
+import { MasterDataDocument } from "./MasterDataDocument.js";
 
 describe("EpcisDocument", () => {
-  it("stores events", () => {
+  it("creates with default body", () => {
     const doc = new EpcisDocument();
 
-    doc.addEvent({
-      toJSON: () => ({
-        type: "ObjectEvent"
-      })
-    });
-
-    expect(doc.events.length).toBe(1);
+    expect(doc.body).toBeDefined();
+    expect(doc.body.events).toHaveLength(0);
   });
 
-  it("creates object events", () => {
+  it("stores header and body", () => {
+    const header = new EpcisHeader({
+      masterData: new MasterDataDocument()
+    });
+
+    const body = new EpcisBody();
+
+    const doc = new EpcisDocument({
+      header,
+      body
+    });
+
+    expect(doc.header).toBe(header);
+    expect(doc.body).toBe(body);
+  });
+
+  it("serializes as an EPCIS document", () => {
     const doc = new EpcisDocument();
 
-    doc.object({
-      epc: "urn:epc:id:sgtin:0614141.112345.400"
-    });
-
-    expect(doc.events.length).toBe(1);
+    expect(doc.toJSON()).toHaveProperty("type", "EPCISDocument");
+    expect(doc.toJSON()).toHaveProperty("schemaVersion", "2.0");
+    expect(doc.toJSON()).toHaveProperty("epcisBody");
   });
 
-  it("creates aggregation events", () => {
-    const doc = new EpcisDocument();
+  it("throws for invalid input", () => {
+  expect(() => EpcisDocument.parse(null)).toThrow(
+    "Invalid EPCIS document"
+  );
+});
 
-    doc.aggregate({
-      parent: "urn:epc:id:sscc:0614141.1234567890",
-      children: [
-        "urn:epc:id:sgtin:0614141.111111.1",
-        "urn:epc:id:sgtin:0614141.111111.2"
-      ]
-    });
+  it("parses a minimal EPCIS document", () => {
+    const json = {
+      type: "EPCISDocument",
+      schemaVersion: "2.0",
+      creationDate: "2025-01-01T00:00:00.000Z",
+      epcisBody: {
+        eventList: []
+      }
+    };
 
-    expect(doc.events.length).toBe(1);
+    const doc = EpcisDocument.parse(json);
+
+    expect(doc.schemaVersion).toBe("2.0");
+    expect(doc.body.events.length).toBe(0);
   });
+
 });

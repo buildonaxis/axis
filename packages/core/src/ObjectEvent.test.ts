@@ -29,4 +29,22 @@ describe("ObjectEvent", () => {
       ]
     });
   });
+
+  it("parses a minimal object event", () => {
+    const event = ObjectEvent.parse({
+      eventType: "ObjectEvent",
+      action: "OBSERVE",
+      bizStep: "shipping",
+      disposition: "in_transit"
+    });
+
+    expect(event.eventType).toBe("ObjectEvent");
+    expect(event.action).toBe("OBSERVE");
+  });
+
+  it("throws for invalid input", () => {
+    expect(() => ObjectEvent.parse(null)).toThrow(
+      "Invalid ObjectEvent"
+    );
+  });
 });

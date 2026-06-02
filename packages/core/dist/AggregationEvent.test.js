@@ -25,4 +25,21 @@ describe("AggregationEvent", () => {
             eventTime: "2026-01-01T00:00:00.000Z"
         });
     });
+    it("parses a minimal aggregation event", () => {
+        const event = AggregationEvent.parse({
+            eventType: "AggregationEvent",
+            action: "ADD",
+            parentId: "urn:epc:id:sgtin:00031234567890.CASE123",
+            childEpcs: [
+                "urn:epc:id:sgtin:00031234567890.BOTTLE123"
+            ],
+            bizStep: "packing"
+        });
+        expect(event.eventType).toBe("AggregationEvent");
+        expect(event.action).toBe("ADD");
+        expect(event.childEpcs).toHaveLength(1);
+    });
+    it("throws for invalid input", () => {
+        expect(() => AggregationEvent.parse(null)).toThrow("Invalid AggregationEvent");
+    });
 });

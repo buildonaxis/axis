@@ -36,6 +36,32 @@ export class ObjectEvent {
       .filter((epc): epc is string => epc !== undefined);
   }
 
+  static parse(input: unknown): ObjectEvent {
+  if (
+    typeof input !== "object" ||
+    input === null
+  ) {
+    throw new Error("Invalid ObjectEvent");
+  }
+
+  const event = input as {
+    action: "ADD" | "OBSERVE" | "DELETE";
+    bizStep: BusinessStep;
+    disposition?: Disposition;
+    location?: string;
+    eventTime?: string;
+  };
+
+  return new ObjectEvent({
+    action: event.action,
+    bizStep: event.bizStep,
+    disposition: event.disposition,
+    location: event.location,
+    eventTime: event.eventTime,
+    items: []
+  });
+}
+
   toJSON() {
     return {
       eventType: this.eventType,

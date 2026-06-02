@@ -1,10 +1,26 @@
 import { SerializedItem } from "./SerializedItem.js";
 
+function itemFromEpcUri(epc: string): SerializedItem {
+  const prefix = "urn:epc:id:sgtin:";
+  const value = epc.startsWith(prefix)
+    ? epc.slice(prefix.length)
+    : epc;
+
+  const [gtin, serial] = value.split(".");
+
+  return new SerializedItem({
+    raw: epc,
+    identifierType: "serialized",
+    gtin,
+    serial
+  });
+}
+
 export interface AggregationEventInput {
   action: "ADD" | "OBSERVE" | "DELETE";
   parent: SerializedItem;
   children: SerializedItem[];
-  bizStep: string;
+  bizStep?: string;
   location?: string;
   eventTime?: string;
 }
@@ -14,7 +30,7 @@ export class AggregationEvent {
   readonly action: "ADD" | "OBSERVE" | "DELETE";
   readonly parent: SerializedItem;
   readonly children: SerializedItem[];
-  readonly bizStep: string;
+  readonly bizStep?: string;
   readonly location?: string;
   readonly eventTime: string;
 
@@ -35,6 +51,46 @@ export class AggregationEvent {
     return this.children
       .map((child) => child.toEpcUri())
       .filter((epc): epc is string => Boolean(epc));
+  }
+
+  static parse(input: unknown): AggregationEvent {
+    if (
+      typeof input !== "object" ||
+      input === null
+    ) {
+      throw new Error("Invalid AggregationEvent");
+    }
+
+    const event = input as {
+      action: "ADD" | "OBSERVE" | "DELETE";
+      parentId?: string;
+      parentID?: string;
+      childEpcs?: string[];
+      childEPCs?: string[];
+      bizStep?: string;
+      location?: string;
+      eventTime?: string;
+    };
+
+    const parentValue = event.parentId ?? event.parentID;
+
+    if (!parentValue) {
+      throw new Error("AggregationEvent requires parentId");
+    }
+
+    const childValues =
+      event.childEpcs ?? event.childEPCs ?? [];
+
+    return new AggregationEvent({
+      action: event.action,
+      parent: itemFromEpcUri(parentValue),
+      children: childValues.map((epc) =>
+        itemFromEpcUri(epc)
+      ),
+      bizStep: event.bizStep,
+      location: event.location,
+      eventTime: event.eventTime
+    });
   }
 
   toJSON() {

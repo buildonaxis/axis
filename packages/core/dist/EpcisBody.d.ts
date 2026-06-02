@@ -17,16 +17,7 @@ export declare class EpcisBody {
             action: "ADD" | "OBSERVE" | "DELETE";
             parentId: string | undefined;
             childEpcs: string[];
-            bizStep: string;
-            location: string | undefined;
-            eventTime: string;
-        } | {
-            eventType: string;
-            action: "ADD" | "OBSERVE" | "DELETE";
-            parentId: string | undefined;
-            childEpcs: string[];
-            bizStep: import("./BusinessStep.js").BusinessStep | undefined;
-            disposition: import("./Disposition.js").Disposition | undefined;
+            bizStep: string | undefined;
             location: string | undefined;
             eventTime: string;
         } | {
@@ -46,4 +37,5 @@ export declare class EpcisBody {
             outputEPCList: string[];
         })[];
     };
+    static parse(input: unknown): EpcisBody;
 }

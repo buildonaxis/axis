@@ -22,4 +22,13 @@ describe("EpcisBody", () => {
         const body = new EpcisBody();
         expect(body.toJSON()).toHaveProperty("eventList");
     });
+    it("parses a minimal body", () => {
+        const body = EpcisBody.parse({
+            eventList: []
+        });
+        expect(body.events).toHaveLength(0);
+    });
+    it("throws for invalid body input", () => {
+        expect(() => EpcisBody.parse(null)).toThrow("Invalid EPCIS body");
+    });
 });

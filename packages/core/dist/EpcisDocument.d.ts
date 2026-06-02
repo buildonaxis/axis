@@ -1,27 +1,17 @@
 import { EpcisHeader } from "./EpcisHeader.js";
-export type EpcisDocumentEvent = {
-    toJSON: () => unknown;
-};
+import { EpcisBody } from "./EpcisBody.js";
 export interface EpcisDocumentInput {
     header?: EpcisHeader;
-    events?: EpcisDocumentEvent[];
+    body?: EpcisBody;
     schemaVersion?: string;
     creationDate?: string;
 }
 export declare class EpcisDocument {
     readonly header?: EpcisHeader;
+    readonly body: EpcisBody;
     readonly schemaVersion: string;
     readonly creationDate: string;
-    events: EpcisDocumentEvent[];
     constructor(input?: EpcisDocumentInput);
-    addEvent(event: EpcisDocumentEvent): void;
-    object(input: {
-        epc: string;
-    }): EpcisDocumentEvent;
-    aggregate(input: {
-        parent: string;
-        children: string[];
-    }): EpcisDocumentEvent;
     toJSON(): {
         type: string;
         schemaVersion: string;
@@ -38,7 +28,31 @@ export declare class EpcisDocument {
             } | undefined;
         } | undefined;
         epcisBody: {
-            eventList: unknown[];
+            eventList: ({
+                eventType: string;
+                action: "ADD" | "OBSERVE" | "DELETE";
+                parentId: string | undefined;
+                childEpcs: string[];
+                bizStep: string | undefined;
+                location: string | undefined;
+                eventTime: string;
+            } | {
+                eventType: string;
+                action: "ADD" | "OBSERVE" | "DELETE";
+                bizStep: import("./BusinessStep.js").BusinessStep | undefined;
+                disposition: import("./Disposition.js").Disposition | undefined;
+                eventTime: string;
+                location: string | undefined;
+                epcList: string[];
+            } | {
+                eventType: string;
+                eventTime: string;
+                bizStep: import("./BusinessStep.js").BusinessStep | undefined;
+                disposition: import("./Disposition.js").Disposition | undefined;
+                inputEPCList: string[];
+                outputEPCList: string[];
+            })[];
         };
     };
+    static parse(input: unknown): EpcisDocument;
 }

@@ -1,7 +1,7 @@
 import { SerializedItem } from "./SerializedItem.js";
 import type { BusinessStep } from "./BusinessStep.js";
 import type { Disposition } from "./Disposition.js";
-interface TransactionBusinessTransaction {
+export interface TransactionBusinessTransaction {
     type: string;
     id: string;
 }
@@ -25,6 +25,7 @@ export declare class TransactionEvent {
     readonly transactions: TransactionBusinessTransaction[];
     constructor(input: TransactionEventInput);
     get epcList(): string[];
+    static parse(input: unknown): TransactionEvent;
     toJSON(): {
         eventType: string;
         action: "ADD" | "OBSERVE" | "DELETE";
@@ -36,4 +37,3 @@ export declare class TransactionEvent {
         bizTransactionList: TransactionBusinessTransaction[];
     };
 }
-export {};

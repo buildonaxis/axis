@@ -55,6 +55,14 @@ const events = (body.eventList ?? []).map((event) => {
     return AggregationEvent.parse(event);
   }
 
+  if (event.eventType === "TransactionEvent") {
+    return TransactionEvent.parse(event);
+  }
+
+  if (event.eventType === "TransformationEvent") {
+  return TransformationEvent.parse(event);
+  }
+
   throw new Error(
     `Unsupported event type: ${String(event.eventType)}`
   );

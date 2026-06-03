@@ -58,4 +58,17 @@ describe("EpcisDocument", () => {
     expect(doc.body.events.length).toBe(0);
   });
 
+  it("round trips a minimal EPCIS document", () => {
+  const original = new EpcisDocument({
+    schemaVersion: "2.0",
+    creationDate: "2025-01-01T00:00:00.000Z",
+    body: new EpcisBody()
+  });
+
+  const json = original.toJSON();
+  const parsed = EpcisDocument.parse(json);
+
+  expect(parsed.toJSON()).toEqual(json);
+});
+
 });

@@ -1,5 +1,7 @@
 import { ObjectEvent } from "./ObjectEvent.js";
 import { AggregationEvent } from "./AggregationEvent.js";
+import { TransactionEvent } from "./TransactionEvent.js";
+import { TransformationEvent } from "./TransformationEvent.js";
 export class EpcisBody {
     events;
     constructor(input = {}) {
@@ -27,6 +29,12 @@ export class EpcisBody {
             }
             if (event.eventType === "AggregationEvent") {
                 return AggregationEvent.parse(event);
+            }
+            if (event.eventType === "TransactionEvent") {
+                return TransactionEvent.parse(event);
+            }
+            if (event.eventType === "TransformationEvent") {
+                return TransformationEvent.parse(event);
             }
             throw new Error(`Unsupported event type: ${String(event.eventType)}`);
         });

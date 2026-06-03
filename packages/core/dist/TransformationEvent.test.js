@@ -13,7 +13,25 @@ describe("TransformationEvent", () => {
         });
         expect(event.inputEpcs.length).toBe(1);
         expect(event.outputEpcs.length).toBe(1);
-        expect(event.toJSON().eventType)
-            .toBe("TransformationEvent");
+        expect(event.toJSON().eventType).toBe("TransformationEvent");
+    });
+    it("parses a minimal transformation event", () => {
+        const event = TransformationEvent.parse({
+            eventType: "TransformationEvent",
+            bizStep: "commissioning",
+            disposition: "active",
+            inputEPCList: [
+                "urn:epc:id:sgtin:00312345678901.INPUT1"
+            ],
+            outputEPCList: [
+                "urn:epc:id:sgtin:00312345678901.OUTPUT1"
+            ]
+        });
+        expect(event.eventType).toBe("TransformationEvent");
+        expect(event.inputEpcs).toHaveLength(1);
+        expect(event.outputEpcs).toHaveLength(1);
+    });
+    it("throws for invalid input", () => {
+        expect(() => TransformationEvent.parse(null)).toThrow("Invalid TransformationEvent");
     });
 });

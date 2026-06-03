@@ -1,3 +1,17 @@
+import { SerializedItem } from "./SerializedItem.js";
+function itemFromEpcUri(epc) {
+    const prefix = "urn:epc:id:sgtin:";
+    const value = epc.startsWith(prefix)
+        ? epc.slice(prefix.length)
+        : epc;
+    const [gtin, serial] = value.split(".");
+    return new SerializedItem({
+        raw: epc,
+        identifierType: "serialized",
+        gtin,
+        serial
+    });
+}
 export class TransactionEvent {
     eventType = "TransactionEvent";
     action;
@@ -20,6 +34,22 @@ export class TransactionEvent {
         return this.items
             .map((item) => item.toEpcUri())
             .filter((epc) => epc !== undefined);
+    }
+    static parse(input) {
+        if (typeof input !== "object" ||
+            input === null) {
+            throw new Error("Invalid TransactionEvent");
+        }
+        const event = input;
+        return new TransactionEvent({
+            action: event.action,
+            bizStep: event.bizStep,
+            disposition: event.disposition,
+            location: event.location,
+            eventTime: event.eventTime,
+            items: (event.epcList ?? []).map((epc) => itemFromEpcUri(epc)),
+            transactions: event.bizTransactionList ?? []
+        });
     }
     toJSON() {
         return {

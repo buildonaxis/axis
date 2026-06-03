@@ -18,6 +18,7 @@ export declare class TransformationEvent {
     constructor(input: TransformationEventInput);
     get inputEpcs(): string[];
     get outputEpcs(): string[];
+    static parse(input: unknown): TransformationEvent;
     toJSON(): {
         eventType: string;
         eventTime: string;

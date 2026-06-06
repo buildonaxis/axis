@@ -107,14 +107,14 @@ Axis is designed to become the application layer for traceability software.
 
 ### v0.2.0 — Query & Trace Foundations
 
-Implemented:
+Implemented
 
 #### EPCIS Domain Model
 
-- EPCISDocument
-- EPCISHeader
-- EPCISBody
-- MasterDataDocument
+- EPCIS Document
+- EPCIS Header
+- EPCIS Body
+- Master Data
 
 #### EPCIS Events
 
@@ -134,8 +134,8 @@ Implemented:
 
 - EventCollection
 - EpcCollection
-- Fluent filtering
-- EPC discovery
+- EPC Discovery
+- Fluent Filtering
 
 #### Traceability APIs
 
@@ -154,7 +154,7 @@ Implemented:
 
 #### Quality
 
-- 89 automated tests
+- 91 automated tests
 - 100% passing
 
 ---
@@ -207,33 +207,63 @@ Axis is being built in the open under the MIT License.
 
 ## Roadmap
 
-### v0.3.0 — Relationship Graphs
+### v0.1.0 — Core Domain Layer ✅
 
-- Aggregation parent/child relationships
-- Transformation input/output relationships
-- Upstream traversal
-- Downstream traversal
+- EPCIS Document Model
+- EPCIS Header Model
+- EPCIS Body Model
+- Master Data Model
+- EPCIS Event Models
+- GS1 Identity Models
+- JSON Serialization
+- Round-trip Parsing
+
+### v0.2.0 — Query & Trace Foundations ✅
+
+- EventCollection
+- EpcCollection
+- EPC Discovery
+- Trace
+- TraceNode
+- TraceGraph
+- Graph Construction APIs
+- Fluent Query APIs
+
+### v0.3.0 — Graph Intelligence
+
+- Parent traversal
+- Child traversal
+- Ancestor traversal
+- Descendant traversal
+- Root node detection
+- Leaf node detection
+- Path discovery
+- Relationship-aware trace graphs
 
 ### v0.4.0 — EPCIS XML Support
 
-- EPCIS XML writer
-- EPCIS XML parser
-- Round-trip compatibility
+- EPCIS XML Writer
+- EPCIS XML Parser
+- EPCIS XML Round-Trip Support
+- EPCIS 1.2 Compatibility Layer
+- EPCIS 2.0 XML Support
 
 ### v0.5.0 — Validation
 
-- EPCIS validation APIs
-- GS1 compliance validation
-- Schema validation
+- EPCIS Validation APIs
+- GS1 Validation APIs
+- Schema Validation
+- Error Reporting
+- Validation Profiles
 
 ### Future
 
-- Supply chain genealogy
-- Recall analysis
-- Graph analytics
-- AI-ready traceability tooling
-- Visualization components
-- Developer playground
+- Supply Chain Genealogy
+- Recall Analysis
+- Digital Product Passport Support
+- AI-Assisted Traceability
+- Visualization Components
+- Developer Playground
 
 ---
 

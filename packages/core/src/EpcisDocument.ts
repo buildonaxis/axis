@@ -1,5 +1,11 @@
 import { EpcisHeader } from "./EpcisHeader.js";
 import { EpcisBody } from "./EpcisBody.js";
+import { EventCollection } from "./EventCollection.js";
+import { Trace } from "./Trace.js";
+import { EpcCollection } from "./EpcCollection.js";
+import { extractEpcs } from "./extractEpcs.js";
+import { TraceGraph } from "./TraceGraph.js";
+import { TraceNode } from "./TraceNode.js";
 
 export interface EpcisDocumentInput {
   header?: EpcisHeader;
@@ -21,6 +27,50 @@ export class EpcisDocument {
     this.creationDate =
       input.creationDate ?? new Date().toISOString();
   }
+
+    events(): EventCollection {
+    return new EventCollection(this.body.events);
+  }
+
+  findEPC(epc: string): EventCollection {
+  return this.events().whereEpc(epc);
+  }
+
+  trace(epc: string): Trace {
+  return new Trace(
+    epc,
+    this.findEPC(epc).toArray()
+  );
+  }
+
+  allEpcs(): EpcCollection {
+  const epcs = new Set<string>();
+
+  for (const event of this.body.events) {
+    for (const epc of extractEpcs(event)) {
+      epcs.add(epc);
+    }
+  }
+
+  return new EpcCollection([...epcs]);
+}
+
+buildTraceGraph(): TraceGraph {
+  const graph = new TraceGraph();
+
+  for (const epc of this.allEpcs().toArray()) {
+    graph.addNode(
+      new TraceNode({
+        epc,
+        events: this.findEPC(epc).toArray()
+      })
+    );
+  }
+
+  return graph;
+}
+
+  
 
   toJSON() {
     return {

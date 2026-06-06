@@ -15,6 +15,25 @@ export class TraceGraph {
     return this.nodes.get(epc);
   }
 
+  getNode(epc: string): TraceNode | undefined {
+    return this.node(epc);
+  }
+
+  connect(parentEpc: string, childEpc: string): void {
+    const parent = this.node(parentEpc);
+    const child = this.node(childEpc);
+
+    if (!parent || !child) {
+      return;
+    }
+
+    child.parent = parent;
+
+    if (!parent.children.includes(child)) {
+      parent.children.push(child);
+    }
+  }
+
   count(): number {
     return this.nodes.size;
   }

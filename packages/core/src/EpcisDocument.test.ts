@@ -3,6 +3,8 @@ import { EpcisDocument } from "./EpcisDocument.js";
 import { EpcisBody } from "./EpcisBody.js";
 import { EpcisHeader } from "./EpcisHeader.js";
 import { MasterDataDocument } from "./MasterDataDocument.js";
+import { SerializedItem } from "./SerializedItem.js";
+import { createShippingEvent } from "./events.js";
 
 describe("EpcisDocument", () => {
   it("creates with default body", () => {
@@ -37,10 +39,10 @@ describe("EpcisDocument", () => {
   });
 
   it("throws for invalid input", () => {
-  expect(() => EpcisDocument.parse(null)).toThrow(
-    "Invalid EPCIS document"
-  );
-});
+    expect(() => EpcisDocument.parse(null)).toThrow(
+      "Invalid EPCIS document"
+    );
+  });
 
   it("parses a minimal EPCIS document", () => {
     const json = {
@@ -59,16 +61,63 @@ describe("EpcisDocument", () => {
   });
 
   it("round trips a minimal EPCIS document", () => {
-  const original = new EpcisDocument({
-    schemaVersion: "2.0",
-    creationDate: "2025-01-01T00:00:00.000Z",
-    body: new EpcisBody()
+    const original = new EpcisDocument({
+      schemaVersion: "2.0",
+      creationDate: "2025-01-01T00:00:00.000Z",
+      body: new EpcisBody()
+    });
+
+    const json = original.toJSON();
+    const parsed = EpcisDocument.parse(json);
+
+    expect(parsed.toJSON()).toEqual(json);
   });
 
-  const json = original.toJSON();
-  const parsed = EpcisDocument.parse(json);
+  it("returns all EPCs in a document", () => {
+    const item = SerializedItem.fromBarcode(
+      "01000312345678901726123121ABC123"
+    );
 
-  expect(parsed.toJSON()).toEqual(json);
+    const document = new EpcisDocument({
+      body: new EpcisBody({
+        events: [
+          createShippingEvent({
+            items: [item]
+          })
+        ]
+      })
+    });
+
+    const epcs = document.allEpcs();
+    const epc = item.toEpcUri();
+
+    expect(epc).toBeDefined();
+    expect(epcs.count()).toBe(1);
+    expect(epcs.contains(epc!)).toBe(true);
+  });
+
+  it("builds a trace graph", () => {
+  const item = SerializedItem.fromBarcode(
+    "01000312345678901726123121ABC123"
+  );
+
+  const document = new EpcisDocument({
+    body: new EpcisBody({
+      events: [
+        createShippingEvent({
+          items: [item]
+        })
+      ]
+    })
+  });
+
+  const graph = document.buildTraceGraph();
+
+  expect(graph.count()).toBe(1);
+
+  const node = graph.node(item.toEpcUri()!);
+
+  expect(node).toBeDefined();
+  expect(node?.eventCount()).toBe(1);
 });
-
 });

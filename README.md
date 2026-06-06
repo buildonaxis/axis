@@ -203,8 +203,6 @@ Early access is available directly from the repository.
 
 Axis is being built in the open under the MIT License.
 
-Contributions, feedback, and discussions are welcome.
-
 ---
 
 ## Roadmap

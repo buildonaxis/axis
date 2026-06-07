@@ -67,6 +67,23 @@ buildTraceGraph(): TraceGraph {
     );
   }
 
+  for (const event of this.body.events) {
+    const json = event.toJSON();
+
+    if (
+      "parentId" in json &&
+      typeof json.parentId === "string" &&
+      "childEpcs" in json &&
+      Array.isArray(json.childEpcs)
+    ) {
+      for (const childEpc of json.childEpcs) {
+        if (typeof childEpc === "string") {
+          graph.connect(json.parentId, childEpc);
+        }
+      }
+    }
+  }
+
   return graph;
 }
 

@@ -48,9 +48,9 @@ console.log(document.toJSON());
 Filter events using a fluent interface.
 
 ```ts
-const shipments = document
+const shipped = document
   .events()
-  .whereEventType("ObjectEvent")
+  .whereType("ObjectEvent")
   .whereBizStep("shipping");
 ```
 
@@ -76,7 +76,19 @@ Generate graph structures directly from EPCIS data.
 const graph = document.buildTraceGraph();
 ```
 
-Future releases will add upstream and downstream traversal APIs for genealogy and recall analysis.
+Graph intelligence APIs provide ancestry, descendant traversal, and path discovery across EPC relationships.
+
+```ts
+graph.ancestors(epc);
+
+graph.descendants(epc);
+
+graph.path(parentEpc, childEpc);
+
+graph.roots();
+
+graph.leaves();
+```
 
 ---
 
@@ -88,14 +100,20 @@ Axis focuses on helping developers answer questions.
 
 ```ts
 document.trace(epc);
+```
 
+```ts
 document.allEpcs();
+```
 
+```ts
 document
   .events()
   .whereBizStep("shipping")
   .whereLocation("warehouse-a");
+```
 
+```ts
 const graph = document.buildTraceGraph();
 ```
 
@@ -105,18 +123,18 @@ Axis is designed to become the application layer for traceability software.
 
 ## Current Status
 
-### v0.2.0 — Query & Trace Foundations
+### v0.3.0 – Graph Intelligence
 
-Implemented
+Implemented:
 
-#### EPCIS Domain Model
+### EPCIS Domain Model
 
 - EPCIS Document
 - EPCIS Header
 - EPCIS Body
 - Master Data
 
-#### EPCIS Events
+### EPCIS Events
 
 - ObjectEvent
 - AggregationEvent
@@ -124,26 +142,32 @@ Implemented
 - TransactionEvent
 - TransformationEvent
 
-#### GS1 Identity
+### GS1 Identity
 
 - SerializedItem
 - TradingPartner
 - Location
 
-#### Query APIs
+### Query APIs
 
 - EventCollection
 - EpcCollection
-- EPC Discovery
 - Fluent Filtering
+- EPC Discovery
 
-#### Traceability APIs
+### Traceability APIs
 
 - Trace
 - TraceNode
 - TraceGraph
+- Ancestor Traversal
+- Descendant Traversal
+- Path Discovery
+- Root Detection
+- Leaf Detection
+- Multi-Parent Relationships
 
-#### Capabilities
+### Capabilities
 
 - Parsing
 - JSON Serialization
@@ -152,9 +176,9 @@ Implemented
 - Trace Generation
 - Graph Generation
 
-#### Quality
+### Quality
 
-- 91 automated tests
+- 100 automated tests
 - 100% passing
 
 ---
@@ -187,7 +211,7 @@ Working with EPCIS should feel like working with modern application frameworks.
 
 Axis is not just an EPCIS parser.
 
-Traceability, genealogy, and supply-chain intelligence are core concepts of the platform.
+Traceability, genealogy, and supply chain intelligence are core concepts of the platform.
 
 ---
 
@@ -207,7 +231,7 @@ Axis is being built in the open under the MIT License.
 
 ## Roadmap
 
-### v0.1.0 — Core Domain Layer ✅
+### v0.1.0 – Core Domain Layer ✅
 
 - EPCIS Document Model
 - EPCIS Header Model
@@ -218,7 +242,7 @@ Axis is being built in the open under the MIT License.
 - JSON Serialization
 - Round-trip Parsing
 
-### v0.2.0 — Query & Trace Foundations ✅
+### v0.2.0 – Query & Trace Foundations ✅
 
 - EventCollection
 - EpcCollection
@@ -226,10 +250,10 @@ Axis is being built in the open under the MIT License.
 - Trace
 - TraceNode
 - TraceGraph
-- Graph Construction APIs
 - Fluent Query APIs
+- Query Composition
 
-### v0.3.0 — Graph Intelligence
+### v0.3.0 – Graph Intelligence ✅
 
 - Parent traversal
 - Child traversal
@@ -238,17 +262,17 @@ Axis is being built in the open under the MIT License.
 - Root node detection
 - Leaf node detection
 - Path discovery
-- Relationship-aware trace graphs
+- Multi-parent trace graphs
 
-### v0.4.0 — EPCIS XML Support
+### v0.4.0 – EPCIS XML Support
 
 - EPCIS XML Writer
 - EPCIS XML Parser
-- EPCIS XML Round-Trip Support
-- EPCIS 1.2 Compatibility Layer
-- EPCIS 2.0 XML Support
+- EPCIS 1.2 compatibility layer
+- EPCIS 2.0 full support
+- Round-trip XML support
 
-### v0.5.0 — Validation
+### v0.5.0 – Validation
 
 - EPCIS Validation APIs
 - GS1 Validation APIs

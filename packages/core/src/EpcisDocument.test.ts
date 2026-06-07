@@ -4,7 +4,10 @@ import { EpcisBody } from "./EpcisBody.js";
 import { EpcisHeader } from "./EpcisHeader.js";
 import { MasterDataDocument } from "./MasterDataDocument.js";
 import { SerializedItem } from "./SerializedItem.js";
-import { createShippingEvent } from "./events.js";
+import {
+  createPackingEvent,
+  createShippingEvent
+} from "./events.js";
 
 describe("EpcisDocument", () => {
   it("creates with default body", () => {
@@ -120,4 +123,37 @@ describe("EpcisDocument", () => {
   expect(node).toBeDefined();
   expect(node?.eventCount()).toBe(1);
 });
+
+  it("builds trace graph relationships from aggregation events", () => {
+    const parent = SerializedItem.fromBarcode(
+      "01000312345678901726123121CASE123"
+    );
+
+    const child = SerializedItem.fromBarcode(
+      "01000312345678901726123121ITEM123"
+    );
+
+    const document = new EpcisDocument({
+      body: new EpcisBody({
+        events: [
+          createPackingEvent({
+            parent,
+            children: [child]
+          })
+        ]
+      })
+    });
+
+    const graph = document.buildTraceGraph();
+
+    const parentNode = graph.node(parent.toEpcUri()!);
+    const childNode = graph.node(child.toEpcUri()!);
+
+    expect(parentNode).toBeDefined();
+    expect(childNode).toBeDefined();
+
+    expect(parentNode?.childCount()).toBe(1);
+    expect(childNode?.parentCount()).toBe(1);
+    expect(childNode?.parents[0]).toBe(parentNode);
+  });
 });

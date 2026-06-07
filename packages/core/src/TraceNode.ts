@@ -4,18 +4,18 @@ export class TraceNode {
   readonly epc: string;
   readonly events: EpcisEvent[];
 
-  parent?: TraceNode;
+  readonly parents: TraceNode[];
   readonly children: TraceNode[];
 
   constructor(input: {
     epc: string;
     events?: EpcisEvent[];
-    parent?: TraceNode;
+    parents?: TraceNode[];
     children?: TraceNode[];
   }) {
     this.epc = input.epc;
     this.events = input.events ?? [];
-    this.parent = input.parent;
+    this.parents = input.parents ?? [];
     this.children = input.children ?? [];
   }
 
@@ -23,7 +23,7 @@ export class TraceNode {
     return new TraceNode({
       epc: this.epc,
       events: [...this.events, event],
-      parent: this.parent,
+      parents: this.parents,
       children: this.children
     });
   }
@@ -32,7 +32,53 @@ export class TraceNode {
     return this.events.length;
   }
 
+  parentCount(): number {
+    return this.parents.length;
+  }
+
   childCount(): number {
     return this.children.length;
+  }
+
+  ancestors(): TraceNode[] {
+    const ancestors: TraceNode[] = [];
+    const visited = new Set<string>();
+
+    const visit = (node: TraceNode): void => {
+      for (const parent of node.parents) {
+        if (visited.has(parent.epc)) {
+          continue;
+        }
+
+        visited.add(parent.epc);
+        ancestors.push(parent);
+        visit(parent);
+      }
+    };
+
+    visit(this);
+
+    return ancestors;
+  }
+
+  descendants(): TraceNode[] {
+    const descendants: TraceNode[] = [];
+    const visited = new Set<string>();
+
+    const visit = (node: TraceNode): void => {
+      for (const child of node.children) {
+        if (visited.has(child.epc)) {
+          continue;
+        }
+
+        visited.add(child.epc);
+        descendants.push(child);
+        visit(child);
+      }
+    };
+
+    visit(this);
+
+    return descendants;
   }
 }

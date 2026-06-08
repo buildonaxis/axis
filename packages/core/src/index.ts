@@ -39,3 +39,4 @@ export * from "./TraceNode.js";
 export * from "./EpcCollection.js";
 export * from "./extractEpcs.js";
 export * from "./TraceGraph.js";
+export * from "./XmlParser.js";

@@ -156,4 +156,51 @@ describe("EpcisDocument", () => {
     expect(childNode?.parentCount()).toBe(1);
     expect(childNode?.parents[0]).toBe(parentNode);
   });
+
+    it("builds trace graph relationships for multiple aggregation children", () => {
+    const parent = SerializedItem.fromBarcode(
+      "01000312345678901726123121CASE123"
+    );
+
+    const childA = SerializedItem.fromBarcode(
+      "01000312345678901726123121ITEM123"
+    );
+
+    const childB = SerializedItem.fromBarcode(
+      "01000312345678901726123121ITEM456"
+    );
+
+    const document = new EpcisDocument({
+      body: new EpcisBody({
+        events: [
+          createPackingEvent({
+            parent,
+            children: [childA, childB]
+          })
+        ]
+      })
+    });
+
+    const graph = document.buildTraceGraph();
+
+    const parentNode = graph.node(parent.toEpcUri()!);
+    const childANode = graph.node(childA.toEpcUri()!);
+    const childBNode = graph.node(childB.toEpcUri()!);
+
+    expect(parentNode).toBeDefined();
+    expect(childANode).toBeDefined();
+    expect(childBNode).toBeDefined();
+
+    expect(parentNode?.childCount()).toBe(2);
+    expect(childANode?.parentCount()).toBe(1);
+    expect(childBNode?.parentCount()).toBe(1);
+
+    expect(
+      graph.descendants(parent.toEpcUri()!).map((node) => node.epc)
+    ).toEqual([
+      childA.toEpcUri(),
+      childB.toEpcUri()
+    ]);
+  });
+  
 });

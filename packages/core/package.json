@@ -13,5 +13,8 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.8.0"
   }
 }

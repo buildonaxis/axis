@@ -261,5 +261,129 @@ describe("TraceGraph", () => {
     ).toEqual(["pallet", "case", "item"]);
   });
 
+    it("returns a path from a root to a node", () => {
+    const graph = new TraceGraph();
+
+    const pallet = new TraceNode({ epc: "pallet" });
+    const caseNode = new TraceNode({ epc: "case" });
+    const item = new TraceNode({ epc: "item" });
+
+    graph.addNode(pallet);
+    graph.addNode(caseNode);
+    graph.addNode(item);
+
+    graph.connect("pallet", "case");
+    graph.connect("case", "item");
+
+    expect(
+      graph.pathToRoot("item").map((node) => node.epc)
+    ).toEqual(["pallet", "case", "item"]);
+  });
+
+  it("returns multiple paths from roots to a node", () => {
+    const graph = new TraceGraph();
+
+    const ingredientA = new TraceNode({ epc: "ingredient-a" });
+    const ingredientB = new TraceNode({ epc: "ingredient-b" });
+    const batch = new TraceNode({ epc: "batch" });
+
+    graph.addNode(ingredientA);
+    graph.addNode(ingredientB);
+    graph.addNode(batch);
+
+    graph.connect("ingredient-a", "batch");
+    graph.connect("ingredient-b", "batch");
+
+    expect(
+      graph.pathsToRoots("batch").map((path) =>
+        path.map((node) => node.epc)
+      )
+    ).toEqual([
+      ["ingredient-a", "batch"],
+      ["ingredient-b", "batch"]
+    ]);
+  });
+
+
+  it("finds a common ancestor", () => {
+  const graph = new TraceGraph();
+
+  const pallet = new TraceNode({ epc: "pallet" });
+  const caseNode = new TraceNode({ epc: "case" });
+  const itemA = new TraceNode({ epc: "item-a" });
+  const itemB = new TraceNode({ epc: "item-b" });
+
+  graph.addNode(pallet);
+  graph.addNode(caseNode);
+  graph.addNode(itemA);
+  graph.addNode(itemB);
+
+  graph.connect("pallet", "case");
+  graph.connect("case", "item-a");
+  graph.connect("case", "item-b");
+
+  expect(
+    graph.commonAncestor(
+      "item-a",
+      "item-b"
+    )?.epc
+  ).toBe("case");
+  });
+
+  it("returns root when root is the only common ancestor", () => {
+  const graph = new TraceGraph();
+
+  const root = new TraceNode({ epc: "root" });
+  const left = new TraceNode({ epc: "left" });
+  const right = new TraceNode({ epc: "right" });
+
+  graph.addNode(root);
+  graph.addNode(left);
+  graph.addNode(right);
+
+  graph.connect("root", "left");
+  graph.connect("root", "right");
+
+  expect(
+    graph.commonAncestor(
+      "left",
+      "right"
+    )?.epc
+  ).toBe("root");
+  });
+
+  it("extracts a subgraph around a node", () => {
+  const graph = new TraceGraph();
+
+  const pallet = new TraceNode({ epc: "pallet" });
+  const caseNode = new TraceNode({ epc: "case" });
+  const itemA = new TraceNode({ epc: "item-a" });
+  const itemB = new TraceNode({ epc: "item-b" });
+
+  graph.addNode(pallet);
+  graph.addNode(caseNode);
+  graph.addNode(itemA);
+  graph.addNode(itemB);
+
+  graph.connect("pallet", "case");
+  graph.connect("case", "item-a");
+  graph.connect("case", "item-b");
+
+  const subgraph = graph.subgraph("case");
+
+  expect(subgraph.count()).toBe(4);
+  expect(subgraph.node("pallet")).toBeDefined();
+  expect(subgraph.node("case")).toBeDefined();
+  expect(subgraph.node("item-a")).toBeDefined();
+  expect(subgraph.node("item-b")).toBeDefined();
+
+  expect(subgraph.descendants("case").map((node) => node.epc)).toEqual([
+    "item-a",
+    "item-b"
+  ]);
+  });
+
+
+
 
 });

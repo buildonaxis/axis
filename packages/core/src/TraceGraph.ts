@@ -70,6 +70,105 @@ export class TraceGraph {
     return [];
   }
 
+    pathToRoot(epc: string): TraceNode[] {
+    const paths = this.pathsToRoots(epc);
+
+    return paths[0] ?? [];
+  }
+
+  pathsToRoots(epc: string): TraceNode[][] {
+    const node = this.node(epc);
+
+    if (!node) {
+      return [];
+    }
+
+    if (node.parents.length === 0) {
+      return [[node]];
+    }
+
+    const paths: TraceNode[][] = [];
+
+    for (const parent of node.parents) {
+      const parentPaths = this.pathsToRoots(parent.epc);
+
+      for (const parentPath of parentPaths) {
+        paths.push([...parentPath, node]);
+      }
+    }
+
+    return paths;
+  }
+
+  commonAncestor(
+  epcA: string,
+  epcB: string
+): TraceNode | undefined {
+  const pathA = this.pathToRoot(epcA);
+  const pathB = this.pathToRoot(epcB);
+
+  let ancestor: TraceNode | undefined;
+
+  const length = Math.min(
+    pathA.length,
+    pathB.length
+  );
+
+  for (let i = 0; i < length; i++) {
+    if (pathA[i]?.epc === pathB[i]?.epc) {
+      ancestor = pathA[i];
+    } else {
+      break;
+    }
+  }
+
+  return ancestor;
+}
+
+subgraph(epc: string): TraceGraph {
+  const center = this.node(epc);
+  const graph = new TraceGraph();
+
+  if (!center) {
+    return graph;
+  }
+
+  const related = [
+    center,
+    ...center.ancestors(),
+    ...center.descendants()
+  ];
+
+  for (const node of related) {
+    graph.addNode(
+      new TraceNode({
+        epc: node.epc,
+        events: node.events
+      })
+    );
+  }
+
+  for (const node of related) {
+    for (const child of node.children) {
+      if (graph.node(node.epc) && graph.node(child.epc)) {
+        graph.connect(node.epc, child.epc);
+      }
+    }
+  }
+
+  return graph;
+}
+
+
+
+
+
+
+
+
+
+
+
   getNode(epc: string): TraceNode | undefined {
     return this.node(epc);
   }

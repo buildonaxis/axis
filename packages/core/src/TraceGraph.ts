@@ -159,15 +159,28 @@ subgraph(epc: string): TraceGraph {
   return graph;
 }
 
+toDot(): string {
+  const lines = [
+    "digraph TraceGraph {"
+  ];
 
+  for (const node of this.all()) {
+    if (node.children.length === 0) {
+      lines.push(`  "${node.epc}";`);
+      continue;
+    }
 
+    for (const child of node.children) {
+      lines.push(
+        `  "${node.epc}" -> "${child.epc}";`
+      );
+    }
+  }
 
+  lines.push("}");
 
-
-
-
-
-
+  return lines.join("\n");
+}
 
   getNode(epc: string): TraceNode | undefined {
     return this.node(epc);

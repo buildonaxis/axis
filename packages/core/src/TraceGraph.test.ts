@@ -384,6 +384,29 @@ describe("TraceGraph", () => {
   });
 
 
+  it("exports graph as DOT", () => {
+  const graph = new TraceGraph();
+
+  const pallet = new TraceNode({ epc: "pallet" });
+  const caseNode = new TraceNode({ epc: "case" });
+  const item = new TraceNode({ epc: "item" });
+
+  graph.addNode(pallet);
+  graph.addNode(caseNode);
+  graph.addNode(item);
+
+  graph.connect("pallet", "case");
+  graph.connect("case", "item");
+
+  expect(graph.toDot()).toBe([
+    "digraph TraceGraph {",
+    '  "pallet" -> "case";',
+    '  "case" -> "item";',
+    '  "item";',
+    "}"
+  ].join("\n"));
+  });
+
 
 
 });

@@ -10,6 +10,13 @@ import {
   createShippingEvent
 } from "./events.js";
 
+import { TransformationEvent } from "./TransformationEvent.js";
+import { TransactionEvent } from "./TransactionEvent.js";
+import { EpcisHeader } from "./EpcisHeader.js";
+import { MasterDataDocument } from "./MasterDataDocument.js";
+import { Vocabulary } from "./Vocabulary.js";
+import { VocabularyElement } from "./VocabularyElement.js";
+
 describe("XmlParser", () => {
   it("parses a minimal EPCIS document", () => {
     const xml = `
@@ -135,7 +142,136 @@ describe("XmlParser", () => {
     });
   });
 
-  
+  it("round trips a transformation event", () => {
+  const input = SerializedItem.fromBarcode(
+    "01000312345678901726123121INPUT1"
+  );
+
+  const output = SerializedItem.fromBarcode(
+    "01000312345678901726123121OUTPUT1"
+  );
+
+  const original = new EpcisDocument({
+    schemaVersion: "2.0",
+    body: new EpcisBody({
+      events: [
+        new TransformationEvent({
+          eventTime: "2026-01-01T00:00:00.000Z",
+          bizStep: "commissioning",
+          disposition: "active",
+          inputItems: [input],
+          outputItems: [output]
+        })
+      ]
+    })
+  });
+
+  const xml = XmlWriter.write(original);
+  const parsed = XmlParser.parse(xml);
+
+  expect(parsed.events().count()).toBe(1);
+
+  const event = parsed.events().first();
+
+  expect(event?.toJSON()).toMatchObject({
+    eventType: "TransformationEvent",
+    eventTime: "2026-01-01T00:00:00.000Z",
+    bizStep: "commissioning",
+    disposition: "active",
+    inputEPCList: [input.toEpcUri()],
+    outputEPCList: [output.toEpcUri()]
+  });
+  });
+
+  it("round trips a transaction event", () => {
+  const item =
+    SerializedItem.fromBarcode(
+      "01000312345678901726123121ABC123"
+    );
+
+  const original = new EpcisDocument({
+    schemaVersion: "2.0",
+    body: new EpcisBody({
+      events: [
+        new TransactionEvent({
+          action: "OBSERVE",
+          bizStep: "shipping",
+          disposition: "in_transit",
+          location: "warehouse",
+          eventTime:
+            "2026-01-01T00:00:00.000Z",
+          items: [item],
+          transactions: [
+            {
+              type: "po",
+              id: "PO-12345"
+            }
+          ]
+        })
+      ]
+    })
+  });
+
+    const xml = XmlWriter.write(original);
+
+    const parsed = XmlParser.parse(xml);
+
+    expect(parsed.events().count()).toBe(1);
+
+    const event = parsed.events().first();
+
+    expect(event?.toJSON()).toMatchObject({
+      eventType: "TransactionEvent",
+      action: "OBSERVE",
+      bizStep: "shipping",
+      disposition: "in_transit",
+      location: "warehouse",
+      epcList: [item.toEpcUri()],
+      bizTransactionList: [
+        {
+          type: "po",
+          id: "PO-12345"
+        }
+      ]
+    });
+  });
+
+  it("round trips EPCIS master data", () => {
+  const original = new EpcisDocument({
+    schemaVersion: "2.0",
+    header: new EpcisHeader({
+      masterData: new MasterDataDocument({
+        vocabularies: [
+          new Vocabulary({
+            type: "urn:epcglobal:epcis:vtype:Location",
+            elements: [
+              new VocabularyElement({
+                id: "urn:epc:id:sgln:0614141.00777.0",
+                attributes: [
+                  {
+                    id: "name",
+                    value: "Warehouse A"
+                  },
+                  {
+                    id: "countryCode",
+                    value: "US"
+                  }
+                ]
+              })
+            ]
+          })
+        ]
+      })
+    })
+  });
+
+  const xml = XmlWriter.write(original);
+  const parsed = XmlParser.parse(xml);
+
+  expect(parsed.header?.toJSON()).toEqual(
+    original.header?.toJSON()
+  );
+  });
 
 
 

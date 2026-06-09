@@ -9,6 +9,11 @@ import {
   createShippingEvent
 } from "./events.js";
 
+import { EpcisHeader } from "./EpcisHeader.js";
+import { MasterDataDocument } from "./MasterDataDocument.js";
+import { Vocabulary } from "./Vocabulary.js";
+import { VocabularyElement } from "./VocabularyElement.js";
+
 
 describe("XmlWriter", () => {
   it("writes a minimal EPCIS document", () => {
@@ -93,6 +98,52 @@ describe("XmlWriter", () => {
     expect(xml).toContain("<readPoint>");
   });
 
-  
+    it("writes EPCIS master data", () => {
+    const document = new EpcisDocument({
+      schemaVersion: "2.0",
+      header: new EpcisHeader({
+        masterData: new MasterDataDocument({
+          vocabularies: [
+            new Vocabulary({
+              type: "urn:epcglobal:epcis:vtype:Location",
+              elements: [
+                new VocabularyElement({
+                  id: "urn:epc:id:sgln:0614141.00777.0",
+                  attributes: [
+                    {
+                      id: "name",
+                      value: "Warehouse A"
+                    },
+                    {
+                      id: "countryCode",
+                      value: "US"
+                    }
+                  ]
+                })
+              ]
+            })
+          ]
+        })
+      })
+    });
+
+    const xml = XmlWriter.write(document);
+
+    expect(xml).toContain("<EPCISHeader>");
+    expect(xml).toContain("<EPCISMasterData>");
+    expect(xml).toContain("<VocabularyList>");
+    expect(xml).toContain(
+      'type="urn:epcglobal:epcis:vtype:Location"'
+    );
+    expect(xml).toContain(
+      'id="urn:epc:id:sgln:0614141.00777.0"'
+    );
+    expect(xml).toContain(
+      '<attribute id="name">Warehouse A</attribute>'
+    );
+    expect(xml).toContain(
+      '<attribute id="countryCode">US</attribute>'
+    );
+  });
   
 });

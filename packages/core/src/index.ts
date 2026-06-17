@@ -41,3 +41,4 @@ export * from "./extractEpcs.js";
 export * from "./TraceGraph.js";
 export * from "./XmlParser.js";
 export * from "./XmlWriter.js";
+export * from "./Validation.js";

@@ -145,5 +145,51 @@ describe("XmlWriter", () => {
       '<attribute id="countryCode">US</attribute>'
     );
   });
+
+  it("writes EPCIS header master data", () => {
+  const element = new VocabularyElement({
+    id: "urn:epc:id:sgln:0614141.00001.0",
+    attributes: [
+      {
+        id: "name",
+        value: "Warehouse A"
+      }
+    ]
+  });
+
+  const vocabulary = new Vocabulary({
+    type: "urn:epcglobal:epcis:vtype:Location",
+    elements: [element]
+  });
+
+  const masterData = new MasterDataDocument({
+    vocabularies: [vocabulary]
+  });
+
+  const header = new EpcisHeader({
+    masterData
+  });
+
+  const document = new EpcisDocument({
+    schemaVersion: "2.0",
+    header
+  });
+
+  const xml = XmlWriter.write(document);
+
+  expect(xml).toContain("<EPCISHeader>");
+  expect(xml).toContain("<extension>");
+  expect(xml).toContain("<EPCISMasterData>");
+  expect(xml).toContain("<VocabularyList>");
+  expect(xml).toContain(
+    '<Vocabulary type="urn:epcglobal:epcis:vtype:Location">'
+  );
+  expect(xml).toContain(
+    '<VocabularyElement id="urn:epc:id:sgln:0614141.00001.0">'
+  );
+  expect(xml).toContain(
+    '<attribute id="name">Warehouse A</attribute>'
+  );
+  });
   
 });

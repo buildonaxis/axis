@@ -29,6 +29,18 @@ function parseExpiration(value: string): string {
   return `${fullYear}-${month}-${day}`;
 }
 
+export function isValidGTIN(value: string): boolean {
+  return /^\d{8}$|^\d{12}$|^\d{13}$|^\d{14}$/.test(value);
+}
+
+export function isValidGLN(value: string): boolean {
+  return /^\d{13}$/.test(value);
+}
+
+export function isValidSSCC(value: string): boolean {
+  return /^\d{18}$/.test(value);
+}
+
 export function parseGS1(raw: string): GS1Value[] {
   const values: GS1Value[] = [];
   let cursor = 0;

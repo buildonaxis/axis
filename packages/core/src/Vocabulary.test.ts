@@ -49,4 +49,5 @@ describe("Vocabulary", () => {
       vocabulary.find("loc-1")
     ).toBeDefined();
   });
+  
 });

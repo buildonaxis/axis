@@ -1,4 +1,5 @@
 import { TraceNode } from "./TraceNode.js";
+import type { EpcisDocument } from "./EpcisDocument.js";
 
 export class TraceGraph {
   readonly nodes: Map<string, TraceNode>;
@@ -6,6 +7,12 @@ export class TraceGraph {
   constructor() {
     this.nodes = new Map();
   }
+
+  static fromDocument(
+  document: EpcisDocument
+): TraceGraph {
+  return document.buildTraceGraph();
+}
 
   addNode(node: TraceNode): void {
     this.nodes.set(node.epc, node);

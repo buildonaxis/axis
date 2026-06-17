@@ -32,6 +32,47 @@ export class EpcisDocument {
     return new EventCollection(this.body.events);
   }
 
+  eventsByBizStep(bizStep: string) {
+  return this.body.events.filter(
+    (event) => event.bizStep === bizStep
+  );
+}
+
+eventsByAction(action: string) {
+  return this.body.events.filter(
+    (event) => event.action === action
+  );
+}
+
+eventsByType(type: string) {
+  return this.body.events.filter(
+    (event) => event.eventType === type
+  );
+}
+
+stats() {
+  const events = this.body.events;
+
+  return {
+    totalEvents: events.length,
+    objectEvents: events.filter(
+      (event) => event.eventType === "ObjectEvent"
+    ).length,
+    aggregationEvents: events.filter(
+      (event) => event.eventType === "AggregationEvent"
+    ).length,
+    transformationEvents: events.filter(
+      (event) => event.eventType === "TransformationEvent"
+    ).length,
+    transactionEvents: events.filter(
+      (event) => event.eventType === "TransactionEvent"
+    ).length,
+    associationEvents: events.filter(
+      (event) => event.eventType === "AssociationEvent"
+    ).length
+  };
+}
+
   findEPC(epc: string): EventCollection {
   return this.events().whereEpc(epc);
   }

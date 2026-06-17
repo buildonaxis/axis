@@ -195,7 +195,8 @@ describe("Validation", () => {
   expect(result.errors[0]).toEqual({
     code: "OBJECT_EVENT_NO_EPCS",
     severity: "error",
-    message: "ObjectEvent contains no EPCs"
+    message: "ObjectEvent contains no EPCs",
+    path: "/body/events/0/items"
   });
   });
 

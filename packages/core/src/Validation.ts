@@ -36,13 +36,14 @@ export function validateDocument(
   const profile = options.profile ?? "core";
   const errors: ValidationError[] = [];
 
-  for (const event of document.body.events) {
+  for (const [eventIndex, event] of document.body.events.entries()) {
     if (event instanceof ObjectEvent) {
       if (!event.bizStep) {
         errors.push({
           code: "OBJECT_EVENT_MISSING_BIZSTEP",
           severity: "error",
-          message: "ObjectEvent missing bizStep"
+          message: "ObjectEvent missing bizStep",
+          path: `/body/events/${eventIndex}/bizStep`
         });
       }
 
@@ -50,7 +51,8 @@ export function validateDocument(
         errors.push({
           code: "OBJECT_EVENT_NO_EPCS",
           severity: "error",
-          message: "ObjectEvent contains no EPCs"
+          message: "ObjectEvent contains no EPCs",
+          path: `/body/events/${eventIndex}/items`
         });
       }
     }
@@ -60,7 +62,8 @@ export function validateDocument(
        errors.push({
           code: "AGGREGATION_EVENT_MISSING_PARENT",
           severity: "error",
-          message: "AggregationEvent missing parent"
+          message: "AggregationEvent missing parent",
+          path: `/body/events/${eventIndex}/parent`
         });
       }
 
@@ -68,7 +71,8 @@ export function validateDocument(
         errors.push({
           code: "AGGREGATION_EVENT_NO_CHILDREN",
           severity: "error",
-          message: "AggregationEvent contains no children"
+          message: "AggregationEvent contains no children",
+          path: `/body/events/${eventIndex}/children`
         });
       }
     }
@@ -78,7 +82,8 @@ export function validateDocument(
         errors.push({
           code: "TRANSFORMATION_EVENT_NO_INPUTS",
           severity: "error",
-          message: "TransformationEvent contains no inputs"
+          message: "TransformationEvent contains no inputs",
+          path: `/body/events/${eventIndex}/inputItems`
         });
       }
 
@@ -86,7 +91,8 @@ export function validateDocument(
         errors.push({
           code: "TRANSFORMATION_EVENT_NO_OUTPUTS",
           severity: "error",
-          message: "TransformationEvent contains no outputs"
+          message: "TransformationEvent contains no outputs",
+          path: `/body/events/${eventIndex}/outputItems`
         });
       }
     }
@@ -96,7 +102,8 @@ export function validateDocument(
         errors.push({
           code: "TRANSACTION_EVENT_NO_TRANSACTIONS",
           severity: "error",
-          message: "TransactionEvent contains no business transactions"
+          message: "TransactionEvent contains no business transactions",
+          path: `/body/events/${eventIndex}/transactions`
         });
       }
     }

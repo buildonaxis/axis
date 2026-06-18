@@ -11,7 +11,7 @@ Rather than manipulating EPCIS XML directly, developers work with documents, eve
 ## Installation
 
 ```bash
-npm install @axis/core
+npm install @buildonaxis/core
 ```
 
 ```ts
@@ -20,7 +20,7 @@ import {
   EpcisBody,
   ObjectEvent,
   SerializedItem
-} from "@axis/core";
+} from "@buildonaxis/core";
 ```
 
 ---
@@ -73,7 +73,7 @@ import {
   ObjectEvent,
   EpcisBody,
   EpcisDocument
-} from "@axis/core";
+} from "@buildonaxis/core";
 
 const item = SerializedItem.fromBarcode(
   "010003123456789017261231ABC123"
@@ -195,7 +195,7 @@ console.log(item.serial);
 Parse raw identifiers:
 
 ```ts
-import { parseIdentity } from "@axis/core";
+import { parseIdentity } from "@buildonaxis/core";
 
 const parsed = parseIdentity(
   "010003123456789017261231ABC123"
@@ -227,7 +227,7 @@ epcs.toArray();
 Generate EPCIS-compatible XML.
 
 ```ts
-import { XmlWriter } from "@axis/core";
+import { XmlWriter } from "@buildonaxis/core";
 
 const xml = XmlWriter.write(document);
 ```
@@ -235,7 +235,7 @@ const xml = XmlWriter.write(document);
 Parse EPCIS XML:
 
 ```ts
-import { XmlParser } from "@axis/core";
+import { XmlParser } from "@buildonaxis/core";
 
 const document = XmlParser.parse(xml);
 ```

@@ -1,5 +1,5 @@
 {
-  "name": "@axis/core",
+  "name": "@buildonaxis/core",
   "version": "0.1.0",
   "description": "TypeScript SDK for EPCIS 2.0 and GS1 traceability applications",
   "license": "MIT",

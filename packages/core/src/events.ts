@@ -3,6 +3,7 @@ import { ObjectEvent } from "./ObjectEvent.js";
 import { AggregationEvent } from "./AggregationEvent.js";
 import { TransformationEvent } from "./TransformationEvent.js";
 import { TransactionEvent } from "./TransactionEvent.js";
+import { BusinessStep } from "./BusinessStep.js";
 
 interface ObjectEventBuilderInput {
   items: SerializedItem[];
@@ -17,12 +18,28 @@ interface AggregationEventBuilderInput {
   eventTime?: string;
 }
 
+interface TransformationEventBuilderInput {
+  inputItems: SerializedItem[];
+  outputItems: SerializedItem[];
+  eventTime?: string;
+}
+
+interface TransactionEventBuilderInput {
+  items: SerializedItem[];
+  transactions: {
+    type: string;
+    id: string;
+  }[];
+  location?: string;
+  eventTime?: string;
+}
+
 export function createReceivingEvent(
   input: ObjectEventBuilderInput
 ): ObjectEvent {
   return new ObjectEvent({
     action: "OBSERVE",
-    bizStep: "receiving",
+    bizStep: BusinessStep.Receiving,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
@@ -34,7 +51,7 @@ export function createShippingEvent(
 ): ObjectEvent {
   return new ObjectEvent({
     action: "OBSERVE",
-    bizStep: "shipping",
+    bizStep: BusinessStep.Shipping,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
@@ -46,7 +63,7 @@ export function createCommissioningEvent(
 ): ObjectEvent {
   return new ObjectEvent({
     action: "ADD",
-    bizStep: "commissioning",
+    bizStep: BusinessStep.Commissioning,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
@@ -58,7 +75,7 @@ export function createDecommissioningEvent(
 ): ObjectEvent {
   return new ObjectEvent({
     action: "DELETE",
-    bizStep: "decommissioning",
+    bizStep: BusinessStep.Commissioning,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
@@ -70,7 +87,7 @@ export function createPackingEvent(
 ): AggregationEvent {
   return new AggregationEvent({
     action: "ADD",
-    bizStep: "packing",
+    bizStep: BusinessStep.Packing,
     parent: input.parent,
     children: input.children,
     location: input.location,
@@ -83,7 +100,7 @@ export function createUnpackingEvent(
 ): AggregationEvent {
   return new AggregationEvent({
     action: "DELETE",
-    bizStep: "unpacking",
+    bizStep: BusinessStep.Unpacking,
     parent: input.parent,
     children: input.children,
     location: input.location,
@@ -96,7 +113,7 @@ export function createRepackingEvent(
 ): AggregationEvent {
   return new AggregationEvent({
     action: "OBSERVE",
-    bizStep: "repacking",
+    bizStep: BusinessStep.Repacking,
     parent: input.parent,
     children: input.children,
     location: input.location,
@@ -109,7 +126,7 @@ export function createInspectionEvent(
 ): ObjectEvent {
   return new ObjectEvent({
     action: "OBSERVE",
-    bizStep: "inspecting",
+    bizStep: BusinessStep.Inspecting,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
@@ -121,7 +138,7 @@ export function createSamplingEvent(
 ): ObjectEvent {
   return new ObjectEvent({
     action: "OBSERVE",
-    bizStep: "sampling",
+    bizStep: BusinessStep.Sampling,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
@@ -133,7 +150,7 @@ export function createDestructionEvent(
 ): ObjectEvent {
   return new ObjectEvent({
     action: "DELETE",
-    bizStep: "destroying",
+    bizStep: BusinessStep.Destroying,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
@@ -145,7 +162,7 @@ export function createReturnEvent(
 ): ObjectEvent {
   return new ObjectEvent({
     action: "OBSERVE",
-    bizStep: "returning",
+    bizStep: BusinessStep.Returning,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
@@ -157,7 +174,7 @@ export function createRecallEvent(
 ): ObjectEvent {
   return new ObjectEvent({
     action: "OBSERVE",
-    bizStep: "recalling",
+    bizStep: BusinessStep.Recalling,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
@@ -169,7 +186,7 @@ export function createQualityHoldEvent(
 ): ObjectEvent {
   return new ObjectEvent({
     action: "OBSERVE",
-    bizStep: "holding",
+    bizStep: BusinessStep.Holding,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
@@ -181,7 +198,7 @@ export function createReleaseEvent(
 ): ObjectEvent {
   return new ObjectEvent({
     action: "OBSERVE",
-    bizStep: "releasing",
+    bizStep: BusinessStep.Releasing,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
@@ -193,7 +210,7 @@ export function createInventoryCountEvent(
 ): ObjectEvent {
   return new ObjectEvent({
     action: "OBSERVE",
-    bizStep: "inventorying",
+    bizStep: BusinessStep.Inventorying,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
@@ -205,40 +222,30 @@ export function createInventoryAdjustmentEvent(
 ): ObjectEvent {
   return new ObjectEvent({
     action: "OBSERVE",
-    bizStep: "adjusting",
+    bizStep: BusinessStep.Adjusting,
     items: input.items,
     location: input.location,
     eventTime: input.eventTime
   });
 }
 
-export function createTransformationEvent(input: {
-  inputItems: SerializedItem[];
-  outputItems: SerializedItem[];
-  location?: string;
-  eventTime?: string;
-}): TransformationEvent {
+export function createTransformationEvent(
+  input: TransformationEventBuilderInput
+): TransformationEvent {
   return new TransformationEvent({
-    bizStep: "transforming",
+    bizStep: BusinessStep.Transforming,
     inputItems: input.inputItems,
     outputItems: input.outputItems,
-    location: input.location,
     eventTime: input.eventTime
   });
 }
 
-export function createShippingTransactionEvent(input: {
-  items: SerializedItem[];
-  transactions: {
-    type: string;
-    id: string;
-  }[];
-  location?: string;
-  eventTime?: string;
-}): TransactionEvent {
+export function createShippingTransactionEvent(
+  input: TransactionEventBuilderInput
+): TransactionEvent {
   return new TransactionEvent({
     action: "OBSERVE",
-    bizStep: "shipping",
+    bizStep: BusinessStep.Shipping,
     disposition: "in_transit",
     items: input.items,
     transactions: input.transactions,
@@ -247,18 +254,12 @@ export function createShippingTransactionEvent(input: {
   });
 }
 
-export function createReceivingTransactionEvent(input: {
-  items: SerializedItem[];
-  transactions: {
-    type: string;
-    id: string;
-  }[];
-  location?: string;
-  eventTime?: string;
-}): TransactionEvent {
+export function createReceivingTransactionEvent(
+  input: TransactionEventBuilderInput
+): TransactionEvent {
   return new TransactionEvent({
     action: "OBSERVE",
-    bizStep: "receiving",
+    bizStep: BusinessStep.Receiving,
     disposition: "in_progress",
     items: input.items,
     transactions: input.transactions,

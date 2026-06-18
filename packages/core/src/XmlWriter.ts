@@ -1,10 +1,57 @@
 import { EpcisDocument } from "./EpcisDocument.js";
 
+type ObjectEventJson = {
+  eventType: "ObjectEvent";
+  action: string;
+  bizStep?: string;
+  disposition?: string;
+  eventTime: string;
+  location?: string;
+  epcList: string[];
+};
+
+type AggregationEventJson = {
+  eventType: "AggregationEvent";
+  action: string;
+  parentId?: string;
+  childEpcs: string[];
+  bizStep?: string;
+  location?: string;
+  eventTime: string;
+};
+
+type TransformationEventJson = {
+  eventType: "TransformationEvent";
+  eventTime: string;
+  bizStep?: string;
+  disposition?: string;
+  inputEPCList: string[];
+  outputEPCList: string[];
+};
+
+type TransactionEventJson = {
+  eventType: "TransactionEvent";
+  action: string;
+  bizStep?: string;
+  disposition?: string;
+  location?: string;
+  eventTime: string;
+  epcList: string[];
+  bizTransactionList: {
+    type: string;
+    id: string;
+  }[];
+};
+
 export class XmlWriter {
   static write(document: EpcisDocument): string {
     const events = document.body.events
       .map((event) => {
-        const json = event.toJSON();
+        const json = event.toJSON() as
+          | ObjectEventJson
+          | AggregationEventJson
+          | TransformationEventJson
+          | TransactionEventJson;
 
         if (json.eventType === "ObjectEvent") {
           return XmlWriter.writeObjectEvent(json);
@@ -27,7 +74,7 @@ export class XmlWriter {
       .filter(Boolean)
       .join("\n");
 
-      const header = document.header
+    const header = document.header
       ? XmlWriter.writeHeader(document.header.toJSON())
       : "";
 
@@ -101,14 +148,7 @@ export class XmlWriter {
     return lines.join("\n");
   }
 
-  private static writeObjectEvent(event: {
-    action: string;
-    bizStep?: string;
-    disposition?: string;
-    eventTime: string;
-    location?: string;
-    epcList: string[];
-  }): string {
+  private static writeObjectEvent(event: ObjectEventJson): string {
     const lines = [
       "      <ObjectEvent>",
       `        <eventTime>${event.eventTime}</eventTime>`,
@@ -141,14 +181,7 @@ export class XmlWriter {
     return lines.join("\n");
   }
 
-  private static writeAggregationEvent(event: {
-    action: string;
-    parentId?: string;
-    childEpcs: string[];
-    bizStep?: string;
-    location?: string;
-    eventTime: string;
-  }): string {
+  private static writeAggregationEvent(event: AggregationEventJson): string {
     const lines = [
       "      <AggregationEvent>",
       `        <eventTime>${event.eventTime}</eventTime>`,
@@ -182,103 +215,86 @@ export class XmlWriter {
     return lines.join("\n");
   }
 
-  private static writeTransformationEvent(event: {
-  eventTime: string;
-  bizStep?: string;
-  disposition?: string;
-  inputEPCList: string[];
-  outputEPCList: string[];
-}): string {
-  const lines = [
-    "      <TransformationEvent>",
-    `        <eventTime>${event.eventTime}</eventTime>`
-  ];
+  private static writeTransformationEvent(
+    event: TransformationEventJson
+  ): string {
+    const lines = [
+      "      <TransformationEvent>",
+      `        <eventTime>${event.eventTime}</eventTime>`
+    ];
 
-  lines.push("        <inputEPCList>");
-  for (const epc of event.inputEPCList) {
-    lines.push(`          <epc>${epc}</epc>`);
-  }
-  lines.push("        </inputEPCList>");
+    lines.push("        <inputEPCList>");
+    for (const epc of event.inputEPCList) {
+      lines.push(`          <epc>${epc}</epc>`);
+    }
+    lines.push("        </inputEPCList>");
 
-  lines.push("        <outputEPCList>");
-  for (const epc of event.outputEPCList) {
-    lines.push(`          <epc>${epc}</epc>`);
-  }
-  lines.push("        </outputEPCList>");
+    lines.push("        <outputEPCList>");
+    for (const epc of event.outputEPCList) {
+      lines.push(`          <epc>${epc}</epc>`);
+    }
+    lines.push("        </outputEPCList>");
 
-  if (event.bizStep) {
-    lines.push(`        <bizStep>${event.bizStep}</bizStep>`);
-  }
+    if (event.bizStep) {
+      lines.push(`        <bizStep>${event.bizStep}</bizStep>`);
+    }
 
-  if (event.disposition) {
-    lines.push(`        <disposition>${event.disposition}</disposition>`);
-  }
+    if (event.disposition) {
+      lines.push(`        <disposition>${event.disposition}</disposition>`);
+    }
 
-  lines.push("      </TransformationEvent>");
+    lines.push("      </TransformationEvent>");
 
-  return lines.join("\n");
-}
-
-private static writeTransactionEvent(event: {
-  action: string;
-  bizStep?: string;
-  disposition?: string;
-  location?: string;
-  eventTime: string;
-  epcList: string[];
-  bizTransactionList: {
-    type: string;
-    id: string;
-  }[];
-}): string {
-  const lines = [
-    "      <TransactionEvent>",
-    `        <eventTime>${event.eventTime}</eventTime>`,
-    `        <action>${event.action}</action>`
-  ];
-
-  if (event.bizStep) {
-    lines.push(
-      `        <bizStep>${event.bizStep}</bizStep>`
-    );
+    return lines.join("\n");
   }
 
-  if (event.disposition) {
-    lines.push(
-      `        <disposition>${event.disposition}</disposition>`
-    );
+  private static writeTransactionEvent(event: TransactionEventJson): string {
+    const lines = [
+      "      <TransactionEvent>",
+      `        <eventTime>${event.eventTime}</eventTime>`,
+      `        <action>${event.action}</action>`
+    ];
+
+    if (event.bizStep) {
+      lines.push(
+        `        <bizStep>${event.bizStep}</bizStep>`
+      );
+    }
+
+    if (event.disposition) {
+      lines.push(
+        `        <disposition>${event.disposition}</disposition>`
+      );
+    }
+
+    if (event.location) {
+      lines.push("        <readPoint>");
+      lines.push(
+        `          <id>${event.location}</id>`
+      );
+      lines.push("        </readPoint>");
+    }
+
+    lines.push("        <epcList>");
+
+    for (const epc of event.epcList) {
+      lines.push(`          <epc>${epc}</epc>`);
+    }
+
+    lines.push("        </epcList>");
+
+    lines.push("        <bizTransactionList>");
+
+    for (const tx of event.bizTransactionList) {
+      lines.push(
+        `          <bizTransaction type="${tx.type}">${tx.id}</bizTransaction>`
+      );
+    }
+
+    lines.push("        </bizTransactionList>");
+
+    lines.push("      </TransactionEvent>");
+
+    return lines.join("\n");
   }
-
-  if (event.location) {
-    lines.push("        <readPoint>");
-    lines.push(
-      `          <id>${event.location}</id>`
-    );
-    lines.push("        </readPoint>");
-  }
-
-  lines.push("        <epcList>");
-
-  for (const epc of event.epcList) {
-    lines.push(`          <epc>${epc}</epc>`);
-  }
-
-  lines.push("        </epcList>");
-
-  lines.push("        <bizTransactionList>");
-
-  for (const tx of event.bizTransactionList) {
-    lines.push(
-      `          <bizTransaction type="${tx.type}">${tx.id}</bizTransaction>`
-    );
-  }
-
-  lines.push("        </bizTransactionList>");
-
-  lines.push("      </TransactionEvent>");
-
-  return lines.join("\n");
-}
-
-
 }

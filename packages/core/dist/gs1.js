@@ -5,6 +5,15 @@ function parseExpiration(value) {
     const day = value.slice(4, 6);
     return `${fullYear}-${month}-${day}`;
 }
+export function isValidGTIN(value) {
+    return /^\d{8}$|^\d{12}$|^\d{13}$|^\d{14}$/.test(value);
+}
+export function isValidGLN(value) {
+    return /^\d{13}$/.test(value);
+}
+export function isValidSSCC(value) {
+    return /^\d{18}$/.test(value);
+}
 export function parseGS1(raw) {
     const values = [];
     let cursor = 0;

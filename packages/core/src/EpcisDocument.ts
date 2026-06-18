@@ -40,7 +40,9 @@ export class EpcisDocument {
 
 eventsByAction(action: string) {
   return this.body.events.filter(
-    (event) => event.action === action
+    (event) =>
+      "action" in event &&
+      event.action === action
   );
 }
 

@@ -1,5 +1,9 @@
 import { EpcisHeader } from "./EpcisHeader.js";
 import { EpcisBody } from "./EpcisBody.js";
+import { EventCollection } from "./EventCollection.js";
+import { Trace } from "./Trace.js";
+import { EpcCollection } from "./EpcCollection.js";
+import { TraceGraph } from "./TraceGraph.js";
 export interface EpcisDocumentInput {
     header?: EpcisHeader;
     body?: EpcisBody;
@@ -12,6 +16,22 @@ export declare class EpcisDocument {
     readonly schemaVersion: string;
     readonly creationDate: string;
     constructor(input?: EpcisDocumentInput);
+    events(): EventCollection;
+    eventsByBizStep(bizStep: string): import("./EpcisBody.js").EpcisEvent[];
+    eventsByAction(action: string): import("./EpcisBody.js").EpcisEvent[];
+    eventsByType(type: string): import("./EpcisBody.js").EpcisEvent[];
+    stats(): {
+        totalEvents: number;
+        objectEvents: number;
+        aggregationEvents: number;
+        transformationEvents: number;
+        transactionEvents: number;
+        associationEvents: number;
+    };
+    findEPC(epc: string): EventCollection;
+    trace(epc: string): Trace;
+    allEpcs(): EpcCollection;
+    buildTraceGraph(): TraceGraph;
     toJSON(): {
         type: string;
         schemaVersion: string;

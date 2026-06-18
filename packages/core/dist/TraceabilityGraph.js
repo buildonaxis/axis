@@ -1,3 +1,16 @@
+/**
+ * @deprecated
+ *
+ * Legacy traceability model retained for backwards compatibility.
+ *
+ * New development should use:
+ *
+ * EpcisDocument.buildTraceGraph()
+ * TraceGraph
+ * TraceNode
+ *
+ * Future versions will replace this model with EPCIS-native graph generation.
+ */
 export class TraceabilityGraph {
     shipments = [];
     aggregations = [];

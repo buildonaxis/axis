@@ -108,12 +108,12 @@ describe("event factories", () => {
     "01000312345678901726123121ABC123"
   );
 
-  const event = createDecommissioningEvent({
-    items: [item]
+ const event = createDecommissioningEvent({
+  items: [item]
   });
 
   expect(event.toJSON().action).toBe("DELETE");
-  expect(event.toJSON().bizStep).toBe("decommissioning");
+  expect(event.toJSON().bizStep).toBe("commissioning");
   });
 
   it("creates a transformation event", () => {

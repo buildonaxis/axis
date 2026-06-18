@@ -1,11 +1,22 @@
 export declare const BusinessStep: {
     readonly Commissioning: "commissioning";
+    readonly Decommissioning: "decommissioning";
     readonly Shipping: "shipping";
     readonly Receiving: "receiving";
     readonly Packing: "packing";
     readonly Unpacking: "unpacking";
+    readonly Repacking: "repacking";
     readonly Storing: "storing";
     readonly Picking: "picking";
+    readonly Inspecting: "inspecting";
+    readonly Sampling: "sampling";
+    readonly Destroying: "destroying";
+    readonly Returning: "returning";
+    readonly Recalling: "recalling";
+    readonly Holding: "holding";
+    readonly Releasing: "releasing";
+    readonly Inventorying: "inventorying";
+    readonly Adjusting: "adjusting";
     readonly Transforming: "transforming";
     readonly Disposing: "disposing";
 };

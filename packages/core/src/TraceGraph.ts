@@ -210,6 +210,59 @@ toDot(): string {
     }
   }
 
+  toJSON(): {
+  nodes: {
+    epc: string;
+    parentCount: number;
+    childCount: number;
+    eventCount: number;
+  }[];
+  edges: {
+    source: string;
+    target: string;
+  }[];
+} {
+  const edges: {
+    source: string;
+    target: string;
+  }[] = [];
+
+  for (const node of this.all()) {
+    for (const child of node.children) {
+      edges.push({
+        source: node.epc,
+        target: child.epc
+      });
+    }
+  }
+
+  return {
+    nodes: this.all().map((node) => ({
+      epc: node.epc,
+      parentCount: node.parentCount(),
+      childCount: node.childCount(),
+      eventCount: node.eventCount()
+    })),
+    edges
+  };
+}
+
+toMermaid(): string {
+  const lines = [
+    "graph LR"
+  ];
+
+  for (const node of this.all()) {
+    for (const child of node.children) {
+      lines.push(
+        `  "${node.epc}" --> "${child.epc}"`
+      );
+    }
+  }
+
+  return lines.join("\n");
+}
+
   roots(): TraceNode[] {
     return this.all().filter(
       (node) => node.parents.length === 0

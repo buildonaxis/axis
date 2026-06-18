@@ -29,7 +29,7 @@ export function lot(
   lot: string
 ): SerializedItem {
   return new SerializedItem({
-    identifierType: "lot",
+    identifierType: "lot-tracked",
     gtin,
     lot,
     raw: `${gtin}:${lot}`

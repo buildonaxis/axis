@@ -3,6 +3,8 @@ import { EpcisDocument } from "./EpcisDocument.js";
 import { EpcisBody } from "./EpcisBody.js";
 import { EpcisHeader } from "./EpcisHeader.js";
 import { MasterDataDocument } from "./MasterDataDocument.js";
+import { SerializedItem } from "./SerializedItem.js";
+import { createPackingEvent, createShippingEvent } from "./events.js";
 describe("EpcisDocument", () => {
     it("creates with default body", () => {
         const doc = new EpcisDocument();
@@ -52,5 +54,90 @@ describe("EpcisDocument", () => {
         const json = original.toJSON();
         const parsed = EpcisDocument.parse(json);
         expect(parsed.toJSON()).toEqual(json);
+    });
+    it("returns all EPCs in a document", () => {
+        const item = SerializedItem.fromBarcode("01000312345678901726123121ABC123");
+        const document = new EpcisDocument({
+            body: new EpcisBody({
+                events: [
+                    createShippingEvent({
+                        items: [item]
+                    })
+                ]
+            })
+        });
+        const epcs = document.allEpcs();
+        const epc = item.toEpcUri();
+        expect(epc).toBeDefined();
+        expect(epcs.count()).toBe(1);
+        expect(epcs.contains(epc)).toBe(true);
+    });
+    it("builds a trace graph", () => {
+        const item = SerializedItem.fromBarcode("01000312345678901726123121ABC123");
+        const document = new EpcisDocument({
+            body: new EpcisBody({
+                events: [
+                    createShippingEvent({
+                        items: [item]
+                    })
+                ]
+            })
+        });
+        const graph = document.buildTraceGraph();
+        expect(graph.count()).toBe(1);
+        const node = graph.node(item.toEpcUri());
+        expect(node).toBeDefined();
+        expect(node?.eventCount()).toBe(1);
+    });
+    it("builds trace graph relationships from aggregation events", () => {
+        const parent = SerializedItem.fromBarcode("01000312345678901726123121CASE123");
+        const child = SerializedItem.fromBarcode("01000312345678901726123121ITEM123");
+        const document = new EpcisDocument({
+            body: new EpcisBody({
+                events: [
+                    createPackingEvent({
+                        parent,
+                        children: [child]
+                    })
+                ]
+            })
+        });
+        const graph = document.buildTraceGraph();
+        const parentNode = graph.node(parent.toEpcUri());
+        const childNode = graph.node(child.toEpcUri());
+        expect(parentNode).toBeDefined();
+        expect(childNode).toBeDefined();
+        expect(parentNode?.childCount()).toBe(1);
+        expect(childNode?.parentCount()).toBe(1);
+        expect(childNode?.parents[0]).toBe(parentNode);
+    });
+    it("builds trace graph relationships for multiple aggregation children", () => {
+        const parent = SerializedItem.fromBarcode("01000312345678901726123121CASE123");
+        const childA = SerializedItem.fromBarcode("01000312345678901726123121ITEM123");
+        const childB = SerializedItem.fromBarcode("01000312345678901726123121ITEM456");
+        const document = new EpcisDocument({
+            body: new EpcisBody({
+                events: [
+                    createPackingEvent({
+                        parent,
+                        children: [childA, childB]
+                    })
+                ]
+            })
+        });
+        const graph = document.buildTraceGraph();
+        const parentNode = graph.node(parent.toEpcUri());
+        const childANode = graph.node(childA.toEpcUri());
+        const childBNode = graph.node(childB.toEpcUri());
+        expect(parentNode).toBeDefined();
+        expect(childANode).toBeDefined();
+        expect(childBNode).toBeDefined();
+        expect(parentNode?.childCount()).toBe(2);
+        expect(childANode?.parentCount()).toBe(1);
+        expect(childBNode?.parentCount()).toBe(1);
+        expect(graph.descendants(parent.toEpcUri()).map((node) => node.epc)).toEqual([
+            childA.toEpcUri(),
+            childB.toEpcUri()
+        ]);
     });
 });

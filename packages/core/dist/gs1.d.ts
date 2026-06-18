@@ -15,4 +15,7 @@ export type GS1Value = {
     name: "serial";
     value: string;
 };
+export declare function isValidGTIN(value: string): boolean;
+export declare function isValidGLN(value: string): boolean;
+export declare function isValidSSCC(value: string): boolean;
 export declare function parseGS1(raw: string): GS1Value[];

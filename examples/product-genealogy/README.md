@@ -150,15 +150,19 @@ Produces:
 
 ```mermaid
 graph LR
-  "PALLET123" --> "CASEA123"
-  "PALLET123" --> "CASEB123"
-  "CASEA123" --> "BOTTLEA"
-  "CASEA123" --> "BOTTLEB"
-  "CASEB123" --> "BOTTLEC"
-  "CASEB123" --> "BOTTLED"
+  P["Pallet 123"] --> CA["Case A"]
+  P --> CB["Case B"]
+
+  CA --> BA["Bottle A"]
+  CA --> BB["Bottle B"]
+
+  CB --> BC["Bottle C"]
+  CB --> BD["Bottle D"]
 ```
 
 ---
+
+
 
 ## Why This Matters
 

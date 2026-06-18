@@ -1,0 +1,13 @@
+{
+  "name": "axis-product-genealogy-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Example showing how to build a product genealogy graph with Axis.",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "@buildonaxis/core": "^0.1.0"
+  }
+}

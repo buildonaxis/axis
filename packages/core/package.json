@@ -1,6 +1,6 @@
 {
   "name": "@buildonaxis/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript SDK for EPCIS 2.0 and GS1 traceability applications",
   "license": "MIT",
   "type": "module",
@@ -31,11 +31,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dkraciun/axis.git"
+    "url": "https://github.com/buildonaxis/axis"
   },
-  "homepage": "https://github.com/dkraciun/axis",
+  "homepage": "https://github.com/buildonaxis/axis",
   "bugs": {
-    "url": "https://github.com/dkraciun/axis/issues"
+    "url": "https://github.com/buildonaxis/axis/issues"
   },
   "dependencies": {
     "fast-xml-parser": "^5.8.0"

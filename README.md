@@ -125,7 +125,7 @@ console.log(xml);
 
 ## What Axis Can Do Today
 
-Axis Core v0.1.0 includes:
+Axis Core v0.1.1 includes:
 
 * EPCIS domain objects
 * GS1 identifier helpers
@@ -354,7 +354,7 @@ Developers can use Axis to build:
 
 ## What Axis Is Not Yet
 
-Axis Core v0.1.0 is a public alpha release.
+Axis Core v0.1.1 is a public alpha release.
 
 It is not yet a complete end-to-end traceability platform.
 
@@ -415,7 +415,7 @@ The SDK should make common tasks obvious.
 
 ## Current Status
 
-### Axis Core v0.1.0
+### Axis Core v0.1.1
 
 Status: Public alpha release.
 

@@ -1,9 +1,24 @@
 {
   "name": "@axis/core",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for EPCIS 2.0 and GS1 traceability applications",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "epcis",
+    "gs1",
+    "traceability",
+    "serialization",
+    "supply-chain",
+    "dscsa"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -13,6 +28,14 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dkraciun/axis.git"
+  },
+  "homepage": "https://github.com/dkraciun/axis",
+  "bugs": {
+    "url": "https://github.com/dkraciun/axis/issues"
   },
   "dependencies": {
     "fast-xml-parser": "^5.8.0"

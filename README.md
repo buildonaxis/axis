@@ -2,25 +2,79 @@
 
 A modern TypeScript SDK for EPCIS, GS1 identifiers, and traceability applications.
 
-Axis helps developers build supply chain, serialization, product intelligence, and traceability software using strongly typed domain objects instead of EPCIS XML.
+Axis helps developers build serialization, supply chain, product intelligence, and traceability software using strongly typed domain objects instead of XML-first workflows.
 
-Instead of working directly with XML documents, developers work with EPCIS concepts, GS1 identifiers, events, and traceability graphs.
+Rather than manipulating EPCIS XML directly, developers work with documents, events, identifiers, queries, traces, and graphs.
+
+---
+
+## Installation
+
+```bash
+npm install @axis/core
+```
+
+```ts
+import {
+  EpcisDocument,
+  EpcisBody,
+  ObjectEvent,
+  SerializedItem
+} from "@axis/core";
+```
+
+---
+
+## Think of Axis as React for EPCIS
+
+Most EPCIS tooling focuses on generating, validating, or transporting EPCIS documents.
+
+Axis focuses on helping developers build applications.
+
+Instead of working directly with XML structures and EPCIS schemas, developers work with modern TypeScript domain objects.
+
+```ts
+const event = new ObjectEvent({
+  action: "OBSERVE",
+  bizStep: "shipping",
+  items: [item]
+});
+```
+
+instead of:
+
+```ts
+xml.createElement("ObjectEvent");
+```
+
+Axis handles EPCIS complexity so developers can focus on business logic.
 
 ---
 
 ## Why Axis?
 
-Most EPCIS tooling focuses on generating, validating, or transporting EPCIS documents.
+Building EPCIS applications today often requires developers to:
 
-Axis focuses on helping developers build software.
+- Parse XML
+- Navigate nested document structures
+- Manage EPC relationships manually
+- Build custom traceability logic
+- Create graph models from EPCIS events
 
-The goal is to make EPCIS data feel as natural to work with as any modern TypeScript library.
+Axis provides a developer-friendly application layer that makes EPCIS data feel like any modern TypeScript framework.
 
 ---
 
-## Example
+## Quick Start
 
 ```ts
+import {
+  SerializedItem,
+  ObjectEvent,
+  EpcisBody,
+  EpcisDocument
+} from "@axis/core";
+
 const item = SerializedItem.fromBarcode(
   "010003123456789017261231ABC123"
 );
@@ -45,13 +99,23 @@ console.log(document.toJSON());
 
 ## Query API
 
-Filter events using a fluent interface.
+Filter EPCIS events using a fluent query interface.
 
 ```ts
 const shipped = document
   .events()
   .whereType("ObjectEvent")
   .whereBizStep("shipping");
+```
+
+Chain filters naturally:
+
+```ts
+const warehouseShipments = document
+  .events()
+  .whereType("ObjectEvent")
+  .whereBizStep("shipping")
+  .whereLocation("warehouse-a");
 ```
 
 ---
@@ -66,17 +130,25 @@ const trace = document.trace(
 );
 ```
 
+Trace APIs expose the full lifecycle of an EPC.
+
+```ts
+trace.events();
+trace.firstSeen();
+trace.lastSeen();
+```
+
 ---
 
 ## Trace Graphs
 
-Generate graph structures directly from EPCIS data.
+Generate graph structures directly from EPCIS aggregation and association events.
 
 ```ts
 const graph = document.buildTraceGraph();
 ```
 
-Graph intelligence APIs provide ancestry, descendant traversal, and path discovery across EPC relationships.
+Navigate relationships:
 
 ```ts
 graph.ancestors(epc);
@@ -90,49 +162,102 @@ graph.roots();
 graph.leaves();
 ```
 
+Example:
+
+```text
+Case
+ ├── Bottle A
+ ├── Bottle B
+ └── Bottle C
+```
+
+```ts
+graph.descendants(caseEpc);
+```
+
+Returns all contained EPCs.
+
 ---
 
-## What Makes Axis Different?
+## GS1 Identity APIs
 
-Most EPCIS tooling focuses on moving documents.
-
-Axis focuses on helping developers answer questions.
+Parse and work with GS1 identifiers.
 
 ```ts
-document.trace(epc);
+const item = SerializedItem.fromBarcode(
+  "010003123456789017261231ABC123"
+);
+
+console.log(item.gtin);
+console.log(item.serial);
 ```
+
+Parse raw identifiers:
 
 ```ts
-document.allEpcs();
+import { parseIdentity } from "@axis/core";
+
+const parsed = parseIdentity(
+  "010003123456789017261231ABC123"
+);
 ```
+
+---
+
+## EPC Discovery
+
+Find every EPC referenced in a document.
 
 ```ts
-document
-  .events()
-  .whereBizStep("shipping")
-  .whereLocation("warehouse-a");
+const epcs = document.allEpcs();
 ```
+
+Filter and enumerate:
 
 ```ts
-const graph = document.buildTraceGraph();
+epcs.count();
+
+epcs.toArray();
 ```
 
-Axis is designed to become the application layer for traceability software.
+---
+
+## XML Support
+
+Generate EPCIS-compatible XML.
+
+```ts
+import { XmlWriter } from "@axis/core";
+
+const xml = XmlWriter.write(document);
+```
+
+Parse EPCIS XML:
+
+```ts
+import { XmlParser } from "@axis/core";
+
+const document = XmlParser.parse(xml);
+```
 
 ---
 
 ## Current Status
 
-### v0.3.0 – Graph Intelligence
+### Version 0.1.0
 
-Implemented:
+Status: Early developer preview.
+
+Axis is stable enough for experimentation, prototypes, internal tools, and developer feedback.
+
+Implemented capabilities include:
 
 ### EPCIS Domain Model
 
 - EPCIS Document
 - EPCIS Header
 - EPCIS Body
-- Master Data
+- Master Data Support
 
 ### EPCIS Events
 
@@ -147,6 +272,8 @@ Implemented:
 - SerializedItem
 - TradingPartner
 - Location
+- ReadPoint
+- BizLocation
 
 ### Query APIs
 
@@ -167,19 +294,24 @@ Implemented:
 - Leaf Detection
 - Multi-Parent Relationships
 
-### Capabilities
+### Serialization
 
-- Parsing
 - JSON Serialization
-- Strong Typing
-- EPC Discovery
-- Trace Generation
-- Graph Generation
+- JSON Parsing
+- XML Writing
+- XML Parsing
+
+### Validation
+
+- EPCIS Validation APIs
+- Error Reporting
+- Validation Framework
 
 ### Quality
 
-- 100 automated tests
-- 100% passing
+- 150+ automated tests
+- Fully passing build pipeline
+- TypeScript strict mode
 
 ---
 
@@ -187,13 +319,13 @@ Implemented:
 
 ### EPCIS First
 
-Developers work with EPCIS concepts, not XML nodes.
+Developers should work with EPCIS concepts, not XML nodes.
 
 ```ts
 const event = new ObjectEvent({...});
 ```
 
-instead of
+Not:
 
 ```ts
 xml.createElement("ObjectEvent");
@@ -209,90 +341,48 @@ Working with EPCIS should feel like working with modern application frameworks.
 
 ### Traceability as a First-Class Concept
 
-Axis is not just an EPCIS parser.
+Axis is more than an EPCIS parser.
 
-Traceability, genealogy, and supply chain intelligence are core concepts of the platform.
-
----
-
-## Installation
-
-Axis is currently under active development and is not yet published to npm.
-
-Early access is available directly from the repository.
-
----
-
-## Open Source
-
-Axis is being built in the open under the MIT License.
+Traceability, genealogy, and supply chain intelligence are core concepts of the SDK.
 
 ---
 
 ## Roadmap
 
-### v0.1.0 – Core Domain Layer ✅
+### v0.2.x
 
-- EPCIS Document Model
-- EPCIS Header Model
-- EPCIS Body Model
-- Master Data Model
-- EPCIS Event Models
-- GS1 Identity Models
-- JSON Serialization
-- Round-trip Parsing
+- Additional query operators
+- Advanced graph traversal
+- EPC lineage helpers
+- Relationship analytics
 
-### v0.2.0 – Query & Trace Foundations ✅
+### v0.3.x
 
-- EventCollection
-- EpcCollection
-- EPC Discovery
-- Trace
-- TraceNode
-- TraceGraph
-- Fluent Query APIs
-- Query Composition
-
-### v0.3.0 – Graph Intelligence ✅
-
-- Parent traversal
-- Child traversal
-- Ancestor traversal
-- Descendant traversal
-- Root node detection
-- Leaf node detection
-- Path discovery
-- Multi-parent trace graphs
-
-### v0.4.0 – EPCIS XML Support
-
-- EPCIS XML Writer
-- EPCIS XML Parser
-- EPCIS 1.2 compatibility layer
-- EPCIS 2.0 full support
-- Round-trip XML support
-
-### v0.5.0 – Validation
-
-- EPCIS Validation APIs
-- GS1 Validation APIs
-- Schema Validation
-- Error Reporting
-- Validation Profiles
+- EPCIS validation profiles
+- Schema validation
+- Rich error reporting
+- Validation rule engine
 
 ### Future
 
 - Supply Chain Genealogy
 - Recall Analysis
 - Digital Product Passport Support
-- AI-Assisted Traceability
+- Supply Chain Intelligence APIs
 - Visualization Components
+- AI-Assisted Traceability
 - Developer Playground
+
+---
+
+## Open Source
+
+Axis is open source under the MIT License.
 
 ---
 
 ## Vision
 
-Axis aims to become the foundational developer toolkit for the next generation of supply chain, product intelligence, and traceability software.
+Axis aims to become the foundational developer toolkit for the next generation of traceability software.
 
-Developers should be able to build everything from EPCIS integrations to digital product passports, genealogy systems, recall platforms, and AI-powered traceability applications using a single modern TypeScript SDK.
+Developers should be able to build everything from EPCIS integrations and serialization platforms to digital product passports, genealogy systems, recall platforms, inventory applications, and AI-powered traceability solutions using a single modern TypeScript SDK.

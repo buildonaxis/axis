@@ -1,0 +1,13 @@
+{
+  "name": "axis-parse-epcis-example",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "description": "Example showing how to parse EPCIS XML with Axis.",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "@buildonaxis/core": "^0.1.1"
+  }
+}

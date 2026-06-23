@@ -1,0 +1,13 @@
+{
+  "name": "axis-recall-analysis-example",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "description": "Example showing how to use Axis traceability graphs for recall analysis.",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "@buildonaxis/core": "^0.1.1"
+  }
+}

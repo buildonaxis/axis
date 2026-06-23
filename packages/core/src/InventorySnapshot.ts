@@ -1,3 +1,6 @@
+import { AggregationEvent } from "./AggregationEvent";
+import { EpcisDocument } from "./EpcisDocument";
+
 export interface AggregationRelationship {
   parentEpc: string;
   childEpcs: string[];
@@ -9,26 +12,77 @@ export class InventorySnapshot {
 
   private constructor() {}
 
+  static from(document: EpcisDocument): InventorySnapshot {
+    const snapshot = new InventorySnapshot();
+
+    for (const event of document.body.events) {
+      if (!(event instanceof AggregationEvent)) {
+        continue;
+      }
+
+      const parentEpc = event.parentId;
+      const childEpcs = event.childEpcs;
+
+      if (!parentEpc || childEpcs.length === 0) {
+        continue;
+      }
+
+      if (event.action === "ADD" || event.action === "OBSERVE") {
+        snapshot.addRelationship(parentEpc, childEpcs);
+      }
+
+      if (event.action === "DELETE") {
+        snapshot.removeRelationship(parentEpc, childEpcs);
+      }
+    }
+
+    return snapshot;
+  }
+
   static fromRelationships(
     relationships: AggregationRelationship[]
   ): InventorySnapshot {
     const snapshot = new InventorySnapshot();
 
     for (const relationship of relationships) {
-      snapshot.childMap.set(
-        relationship.parentEpc,
-        relationship.childEpcs
-      );
-
-      for (const childEpc of relationship.childEpcs) {
-        snapshot.parentMap.set(
-          childEpc,
-          relationship.parentEpc
-        );
-      }
+      snapshot.addRelationship(relationship.parentEpc, relationship.childEpcs);
     }
 
     return snapshot;
+  }
+
+  private addRelationship(parentEpc: string, childEpcs: string[]): void {
+    const existingChildren = this.childMap.get(parentEpc) ?? [];
+
+    for (const childEpc of childEpcs) {
+      this.parentMap.set(childEpc, parentEpc);
+
+      if (!existingChildren.includes(childEpc)) {
+        existingChildren.push(childEpc);
+      }
+    }
+
+    this.childMap.set(parentEpc, existingChildren);
+  }
+
+  private removeRelationship(parentEpc: string, childEpcs: string[]): void {
+    const existingChildren = this.childMap.get(parentEpc) ?? [];
+
+    const remainingChildren = existingChildren.filter(
+      (childEpc) => !childEpcs.includes(childEpc)
+    );
+
+    if (remainingChildren.length > 0) {
+      this.childMap.set(parentEpc, remainingChildren);
+    } else {
+      this.childMap.delete(parentEpc);
+    }
+
+    for (const childEpc of childEpcs) {
+      if (this.parentMap.get(childEpc) === parentEpc) {
+        this.parentMap.delete(childEpc);
+      }
+    }
   }
 
   parentOf(epc: string): string | undefined {
@@ -40,50 +94,49 @@ export class InventorySnapshot {
   }
 
   contentsOf(epc: string): string[] {
-  const children = this.childrenOf(epc);
-  const contents: string[] = [];
+    const children = this.childrenOf(epc);
+    const contents: string[] = [];
 
-  for (const child of children) {
-    contents.push(child);
-    contents.push(...this.contentsOf(child));
+    for (const child of children) {
+      contents.push(child);
+      contents.push(...this.contentsOf(child));
+    }
+
+    return contents;
   }
 
-  return contents;
-}
-
-contains(parentEpc: string, childEpc: string): boolean {
-  return this.contentsOf(parentEpc).includes(childEpc);
-}
-
-rootContainerOf(epc: string): string | undefined {
-  let current = epc;
-  let parent = this.parentOf(current);
-
-  while (parent) {
-    current = parent;
-    parent = this.parentOf(current);
+  contains(parentEpc: string, childEpc: string): boolean {
+    return this.contentsOf(parentEpc).includes(childEpc);
   }
 
-  return current === epc ? undefined : current;
-}
+  rootContainerOf(epc: string): string | undefined {
+    let current = epc;
+    let parent = this.parentOf(current);
 
-pathToRoot(epc: string): string[] {
-  const path: string[] = [];
+    while (parent) {
+      current = parent;
+      parent = this.parentOf(current);
+    }
 
-  let current = epc;
-  let parent = this.parentOf(current);
-
-  while (parent) {
-    path.push(parent);
-    current = parent;
-    parent = this.parentOf(current);
+    return current === epc ? undefined : current;
   }
 
-  return path;
-}
+  pathToRoot(epc: string): string[] {
+    const path: string[] = [];
 
-isContainer(epc: string): boolean {
-  return this.childrenOf(epc).length > 0;
-}
+    let current = epc;
+    let parent = this.parentOf(current);
 
+    while (parent) {
+      path.push(parent);
+      current = parent;
+      parent = this.parentOf(current);
+    }
+
+    return path;
+  }
+
+  isContainer(epc: string): boolean {
+    return this.childrenOf(epc).length > 0;
+  }
 }

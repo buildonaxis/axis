@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { InventorySnapshot } from "./InventorySnapshot";
+import { AggregationEvent } from "./AggregationEvent";
+import { EpcisDocument } from "./EpcisDocument";
+import { SerializedItem } from "./SerializedItem";
+
 
 describe("InventorySnapshot", () => {
   it("finds parent relationships", () => {
@@ -135,5 +139,37 @@ describe("InventorySnapshot", () => {
     inventory.isContainer("item")
   ).toBe(false);
     });
+
+    it("builds an inventory snapshot from an EPCIS document", () => {
+  const pallet = new SerializedItem({
+    gtin: "0614141000000",
+    serial: "0000000001",
+  });
+
+  const item = new SerializedItem({
+    gtin: "0614141112345",
+    serial: "400",
+  });
+
+  const document = new EpcisDocument({
+    body: {
+      events: [
+        new AggregationEvent({
+          action: "ADD",
+          parent: pallet,
+          children: [item],
+          bizStep: "packing",
+        }),
+      ],
+    },
+  });
+
+  const inventory = InventorySnapshot.from(document);
+
+  expect(inventory.parentOf(item.toEpcUri())).toBe(pallet.toEpcUri());
+  expect(inventory.childrenOf(pallet.toEpcUri())).toEqual([
+    item.toEpcUri(),
+  ]);
+});
 
 });

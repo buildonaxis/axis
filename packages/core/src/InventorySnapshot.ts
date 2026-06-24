@@ -26,6 +26,13 @@ export interface InventoryRecord {
   isContainer: boolean;
 }
 
+export interface ContainerView {
+  epc: string;
+  directChildren: string[];
+  allContents: string[];
+  itemCount: number;
+}
+
 export class InventorySnapshot {
   private readonly parentMap = new Map<string, string>();
   private readonly childMap = new Map<string, string[]>();
@@ -73,6 +80,22 @@ export class InventorySnapshot {
     isContainer: this.isContainer(epc),
   };
   }
+
+  container(epc: string): ContainerView | undefined {
+  if (!this.isContainer(epc)) {
+    return undefined;
+  }
+
+  const directChildren = this.childrenOf(epc);
+  const allContents = this.contentsOf(epc);
+
+  return {
+    epc,
+    directChildren,
+    allContents,
+    itemCount: allContents.length,
+  };
+}
 
   static fromRelationships(
     relationships: AggregationRelationship[]

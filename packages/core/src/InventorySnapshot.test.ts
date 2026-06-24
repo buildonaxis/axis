@@ -365,4 +365,41 @@ describe("InventorySnapshot", () => {
   expect(inventory.find("missing")).toBeUndefined();
   });
 
+  it("returns a container view", () => {
+  const inventory =
+    InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet",
+        childEpcs: ["case"],
+      },
+      {
+        parentEpc: "case",
+        childEpcs: ["item"],
+      },
+    ]);
+
+  expect(
+    inventory.container("pallet")
+  ).toEqual({
+    epc: "pallet",
+    directChildren: ["case"],
+    allContents: ["case", "item"],
+    itemCount: 2,
+  });
+  });
+
+it("returns undefined for non-containers", () => {
+  const inventory =
+    InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet",
+        childEpcs: ["item"],
+      },
+    ]);
+
+  expect(
+    inventory.container("item")
+  ).toBeUndefined();
+  });
+
 });

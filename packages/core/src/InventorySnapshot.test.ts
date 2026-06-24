@@ -456,5 +456,26 @@ it("returns undefined for non-containers", () => {
     inventory.roots()
   ).toEqual(["pallet"]);
   });
-  
+
+  it("returns leaf items", () => {
+  const inventory =
+    InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet",
+        childEpcs: ["case"],
+      },
+      {
+        parentEpc: "case",
+        childEpcs: ["item1", "item2"],
+      },
+    ]);
+
+  expect(
+    inventory.leafItems()
+  ).toEqual([
+    "item1",
+    "item2",
+  ]);
+  });
+
 });

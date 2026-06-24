@@ -288,6 +288,18 @@ roots(): string[] {
       .map((epc) => this.subtree(epc));
   }
 
+  leafItems(): string[] {
+  const leaves: string[] = [];
+
+  for (const epc of this.parentMap.keys()) {
+    if (!this.isContainer(epc)) {
+      leaves.push(epc);
+    }
+  }
+
+  return leaves;
+}
+
 
 }
 

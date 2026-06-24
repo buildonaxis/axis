@@ -5,6 +5,17 @@ export interface AggregationRelationship {
   parentEpc: string;
   childEpcs: string[];
 }
+export interface InventoryLocation {
+  epc: string;
+  parentEpc?: string;
+  rootContainerEpc?: string;
+  pathToRoot: string[];
+}
+
+export interface InventoryTreeNode {
+  epc: string;
+  children: InventoryTreeNode[];
+}
 
 export class InventorySnapshot {
   private readonly parentMap = new Map<string, string>();
@@ -177,4 +188,32 @@ export class InventorySnapshot {
   countContainers(): number {
     return this.containers().length;
   }
+
+  locate(epc: string): InventoryLocation {
+  return {
+    epc,
+    parentEpc: this.parentOf(epc),
+    rootContainerEpc: this.rootContainerOf(epc),
+    pathToRoot: this.pathToRoot(epc),
+  };
+  }
+
+  subtree(epc: string): InventoryTreeNode {
+    return {
+      epc,
+      children: this.childrenOf(epc).map((childEpc) =>
+        this.subtree(childEpc)
+      ),
+    };
+  }
+
+  toTree(): InventoryTreeNode[] {
+    return this.containers()
+      .filter((epc) => !this.parentOf(epc))
+      .map((epc) => this.subtree(epc));
+  }
+
+
 }
+
+

@@ -239,4 +239,96 @@ describe("InventorySnapshot", () => {
   expect(inventory.countItems()).toBe(1);
   });
 
+
+  it("locates an EPC within the inventory hierarchy", () => {
+  const inventory = InventorySnapshot.fromRelationships([
+    {
+      parentEpc: "pallet",
+      childEpcs: ["case"],
+    },
+    {
+      parentEpc: "case",
+      childEpcs: ["item"],
+    },
+  ]);
+
+  expect(inventory.locate("item")).toEqual({
+    epc: "item",
+    parentEpc: "case",
+    rootContainerEpc: "pallet",
+    pathToRoot: ["case", "pallet"],
+  });
+  });
+
+  it("returns a subtree for a container", () => {
+    const inventory = InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet",
+        childEpcs: ["case"],
+      },
+      {
+        parentEpc: "case",
+        childEpcs: ["item"],
+      },
+    ]);
+
+    expect(inventory.subtree("pallet")).toEqual({
+      epc: "pallet",
+      children: [
+        {
+          epc: "case",
+          children: [
+            {
+              epc: "item",
+              children: [],
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it("returns inventory trees from root containers", () => {
+    const inventory = InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet-a",
+        childEpcs: ["case-a"],
+      },
+      {
+        parentEpc: "case-a",
+        childEpcs: ["item-a"],
+      },
+      {
+        parentEpc: "pallet-b",
+        childEpcs: ["item-b"],
+      },
+    ]);
+
+  expect(inventory.toTree()).toEqual([
+    {
+      epc: "pallet-a",
+      children: [
+        {
+          epc: "case-a",
+          children: [
+            {
+              epc: "item-a",
+              children: [],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      epc: "pallet-b",
+      children: [
+        {
+          epc: "item-b",
+          children: [],
+        },
+      ],
+    },
+  ]);
+  });
+
 });

@@ -478,4 +478,120 @@ it("returns undefined for non-containers", () => {
   ]);
   });
 
+  it("returns inventory statistics", () => {
+  const inventory = InventorySnapshot.fromRelationships([
+    {
+      parentEpc: "pallet",
+      childEpcs: ["case"],
+    },
+    {
+      parentEpc: "case",
+      childEpcs: ["item"],
+    },
+  ]);
+
+  const stats = inventory.stats();
+
+  expect(stats.totalEpcs).toBe(3);
+  expect(stats.containers).toBe(2);
+  expect(stats.items).toBe(1);
+  expect(stats.leafItems).toBe(1);
+  expect(stats.rootContainers).toBe(1);
+  });
+
+  it("calculates inventory deltas", () => {
+    const before = InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet1",
+        childEpcs: ["item1", "item2"],
+      },
+    ]);
+
+    const after = InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet2",
+        childEpcs: ["item2", "item3"],
+      },
+    ]);
+
+    const delta = after.diff(before);
+
+    expect(delta.added).toEqual(expect.arrayContaining(["item3", "pallet2"]));
+    expect(delta.added).toHaveLength(2);
+
+    expect(delta.removed).toEqual(expect.arrayContaining(["pallet1", "item1"]));
+    expect(delta.removed).toHaveLength(2);
+
+    expect(delta.moved).toContainEqual({
+      epc: "item2",
+      from: "pallet1",
+      to: "pallet2",
+    });
+  });
+
+  it("exports relationships", () => {
+    const inventory = InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet",
+        childEpcs: ["item"],
+      },
+    ]);
+
+    expect(inventory.toRelationships()).toEqual([
+      {
+        parentEpc: "pallet",
+        childEpcs: ["item"],
+      },
+    ]);
+  });
+
+  it("exports inventory rows", () => {
+    const inventory = InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet",
+        childEpcs: ["item"],
+      },
+    ]);
+
+    const rows = inventory.toRows();
+
+    expect(rows).toContainEqual({
+      epc: "item",
+      parentEpc: "pallet",
+      rootContainerEpc: "pallet",
+      childEpcs: [],
+      childCount: 0,
+      isContainer: false,
+    });
+
+    expect(rows).toContainEqual({
+      epc: "pallet",
+      parentEpc: undefined,
+      rootContainerEpc: undefined,
+      childEpcs: ["item"],
+      childCount: 1,
+      isContainer: true,
+    });
+  });
+
+  it("exports hierarchy", () => {
+    const inventory = InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet",
+        childEpcs: ["case"],
+      },
+      {
+        parentEpc: "case",
+        childEpcs: ["item"],
+      },
+    ]);
+
+    const tree = inventory.toHierarchy();
+
+    expect(tree).toHaveLength(1);
+    expect(tree[0].epc).toBe("pallet");
+    expect(tree[0].children[0].epc).toBe("case");
+    expect(tree[0].children[0].children[0].epc).toBe("item");
+  });
+
 });

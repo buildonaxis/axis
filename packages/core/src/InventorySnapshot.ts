@@ -33,6 +33,35 @@ export interface ContainerView {
   itemCount: number;
 }
 
+export interface InventoryStats {
+  totalEpcs: number;
+  containers: number;
+  items: number;
+  leafItems: number;
+  rootContainers: number;
+}
+
+export interface InventoryDeltaMove {
+  epc: string;
+  from?: string;
+  to?: string;
+}
+
+export interface InventoryDelta {
+  added: string[];
+  removed: string[];
+  moved: InventoryDeltaMove[];
+}
+
+export interface InventoryRow {
+  epc: string;
+  parentEpc?: string;
+  rootContainerEpc?: string;
+  childEpcs: string[];
+  childCount: number;
+  isContainer: boolean;
+}
+
 export class InventorySnapshot {
   private readonly parentMap = new Map<string, string>();
   private readonly childMap = new Map<string, string[]>();
@@ -300,6 +329,65 @@ roots(): string[] {
   return leaves;
 }
 
+
+stats(): InventoryStats {
+  return {
+    totalEpcs: this.count(),
+    containers: this.countContainers(),
+    items: this.countItems(),
+    leafItems: this.leafItems().length,
+    rootContainers: this.roots().length,
+  };
+}
+
+diff(previous: InventorySnapshot): InventoryDelta {
+  const currentEpcs = new Set(this.all());
+  const previousEpcs = new Set(previous.all());
+
+  const added = [...currentEpcs].filter((epc) => !previousEpcs.has(epc));
+  const removed = [...previousEpcs].filter((epc) => !currentEpcs.has(epc));
+
+  const moved: InventoryDeltaMove[] = [];
+
+  for (const epc of currentEpcs) {
+    if (!previousEpcs.has(epc)) continue;
+
+    const from = previous.parentOf(epc);
+    const to = this.parentOf(epc);
+
+    if (from !== to) {
+      moved.push({ epc, from, to });
+    }
+  }
+
+  return {
+    added,
+    removed,
+    moved,
+  };
+}
+
+toRelationships(): AggregationRelationship[] {
+  return this.containers().map((parentEpc) => ({
+    parentEpc,
+    childEpcs: this.childrenOf(parentEpc),
+  }));
+}
+
+toRows(): InventoryRow[] {
+  return this.all().map((epc) => ({
+    epc,
+    parentEpc: this.parentOf(epc),
+    rootContainerEpc: this.rootContainerOf(epc),
+    childEpcs: this.childrenOf(epc),
+    childCount: this.childrenOf(epc).length,
+    isContainer: this.isContainer(epc),
+  }));
+}
+
+toHierarchy(): InventoryTreeNode[] {
+  return this.toTree();
+}
 
 }
 

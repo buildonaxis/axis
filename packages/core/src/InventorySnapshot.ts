@@ -17,6 +17,15 @@ export interface InventoryTreeNode {
   children: InventoryTreeNode[];
 }
 
+export interface InventoryRecord {
+  epc: string;
+  parentEpc?: string;
+  rootContainerEpc?: string;
+  childEpcs: string[];
+  pathToRoot: string[];
+  isContainer: boolean;
+}
+
 export class InventorySnapshot {
   private readonly parentMap = new Map<string, string>();
   private readonly childMap = new Map<string, string[]>();
@@ -48,6 +57,21 @@ export class InventorySnapshot {
     }
 
     return snapshot;
+  }
+
+  find(epc: string): InventoryRecord | undefined {
+  if (!this.all().includes(epc)) {
+    return undefined;
+  }
+
+  return {
+    epc,
+    parentEpc: this.parentOf(epc),
+    rootContainerEpc: this.rootContainerOf(epc),
+    childEpcs: this.childrenOf(epc),
+    pathToRoot: this.pathToRoot(epc),
+    isContainer: this.isContainer(epc),
+  };
   }
 
   static fromRelationships(

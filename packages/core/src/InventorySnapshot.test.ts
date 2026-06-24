@@ -331,4 +331,38 @@ describe("InventorySnapshot", () => {
   ]);
   });
 
+
+  it("finds a complete inventory record", () => {
+  const inventory = InventorySnapshot.fromRelationships([
+    {
+      parentEpc: "pallet",
+      childEpcs: ["case"],
+    },
+    {
+      parentEpc: "case",
+      childEpcs: ["item"],
+    },
+  ]);
+
+  expect(inventory.find("item")).toEqual({
+    epc: "item",
+    parentEpc: "case",
+    rootContainerEpc: "pallet",
+    childEpcs: [],
+    pathToRoot: ["case", "pallet"],
+    isContainer: false,
+  });
+  });
+
+  it("returns undefined when finding an unknown EPC", () => {
+  const inventory = InventorySnapshot.fromRelationships([
+    {
+      parentEpc: "pallet",
+      childEpcs: ["item"],
+    },
+  ]);
+
+  expect(inventory.find("missing")).toBeUndefined();
+  });
+
 });

@@ -402,4 +402,59 @@ it("returns undefined for non-containers", () => {
   ).toBeUndefined();
   });
 
+    it("returns all containers", () => {
+  const inventory =
+    InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet",
+        childEpcs: ["case"],
+      },
+      {
+        parentEpc: "case",
+        childEpcs: ["item"],
+      },
+    ]);
+
+  expect(
+    inventory.containers()
+  ).toEqual(["pallet", "case"]);
+  });
+
+    it("returns all items", () => {
+  const inventory =
+    InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet",
+        childEpcs: ["case"],
+      },
+      {
+        parentEpc: "case",
+        childEpcs: ["item"],
+      },
+    ]);
+
+  expect(
+    inventory.items()
+  ).toEqual(["item"]);
+  });
+
+
+    it("returns root containers", () => {
+  const inventory =
+    InventorySnapshot.fromRelationships([
+      {
+        parentEpc: "pallet",
+        childEpcs: ["case"],
+      },
+      {
+        parentEpc: "case",
+        childEpcs: ["item"],
+      },
+    ]);
+
+  expect(
+    inventory.roots()
+  ).toEqual(["pallet"]);
+  });
+  
 });

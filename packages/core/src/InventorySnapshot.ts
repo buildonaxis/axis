@@ -97,6 +97,34 @@ export class InventorySnapshot {
   };
 }
 
+  containers(): string[] {
+  return [...this.childMap.keys()];
+}
+
+items(): string[] {
+  const items: string[] = [];
+
+  for (const epc of this.parentMap.keys()) {
+    if (!this.isContainer(epc)) {
+      items.push(epc);
+    }
+  }
+
+  return items;
+}
+
+roots(): string[] {
+  const roots: string[] = [];
+
+  for (const container of this.containers()) {
+    if (!this.parentOf(container)) {
+      roots.push(container);
+    }
+  }
+
+  return roots;
+}
+
   static fromRelationships(
     relationships: AggregationRelationship[]
   ): InventorySnapshot {

@@ -139,4 +139,42 @@ export class InventorySnapshot {
   isContainer(epc: string): boolean {
     return this.childrenOf(epc).length > 0;
   }
+
+  all(): string[] {
+  const epcs = new Set<string>();
+
+  for (const parentEpc of this.childMap.keys()) {
+    epcs.add(parentEpc);
+  }
+
+  for (const childEpc of this.parentMap.keys()) {
+    epcs.add(childEpc);
+  }
+
+  return [...epcs];
+  }
+
+  items(): string[] {
+    return this.all().filter((epc) => !this.isContainer(epc));
+  }
+
+  containers(): string[] {
+    return this.all().filter((epc) => this.isContainer(epc));
+  }
+
+  looseItems(): string[] {
+    return this.items().filter((epc) => !this.parentOf(epc));
+  }
+
+  count(): number {
+    return this.all().length;
+  }
+
+  countItems(): number {
+    return this.items().length;
+  }
+
+  countContainers(): number {
+    return this.containers().length;
+  }
 }

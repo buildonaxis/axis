@@ -170,6 +170,73 @@ describe("InventorySnapshot", () => {
   expect(inventory.childrenOf(pallet.toEpcUri())).toEqual([
     item.toEpcUri(),
   ]);
-});
+  });
+
+  it("returns all EPCs in the inventory snapshot", () => {
+  const inventory = InventorySnapshot.fromRelationships([
+    {
+      parentEpc: "pallet",
+      childEpcs: ["case"],
+    },
+    {
+      parentEpc: "case",
+      childEpcs: ["item"],
+    },
+  ]);
+
+  expect(inventory.all()).toEqual(["pallet", "case", "item"]);
+  });
+
+  it("returns item and container views", () => {
+  const inventory = InventorySnapshot.fromRelationships([
+    {
+      parentEpc: "pallet",
+      childEpcs: ["case"],
+    },
+    {
+      parentEpc: "case",
+      childEpcs: ["item"],
+    },
+  ]);
+
+  expect(inventory.containers()).toEqual(["pallet", "case"]);
+  expect(inventory.items()).toEqual(["item"]);
+  });
+
+  it("returns loose items", () => {
+  const inventory = InventorySnapshot.fromRelationships([
+    {
+      parentEpc: "pallet",
+      childEpcs: ["case"],
+    },
+    {
+      parentEpc: "case",
+      childEpcs: ["item"],
+    },
+    {
+      parentEpc: "virtual-root",
+      childEpcs: ["loose-item"],
+    },
+  ]);
+
+  expect(inventory.looseItems()).toEqual([]);
+  });
+
+  it("counts inventory entities", () => {
+  const inventory = InventorySnapshot.fromRelationships([
+    {
+      parentEpc: "pallet",
+      childEpcs: ["case"],
+    },
+    {
+      parentEpc: "case",
+      childEpcs: ["item"],
+    },
+  ]);
+
+  expect(inventory.count()).toBe(3);
+  expect(inventory.countContainers()).toBe(2);
+  expect(inventory.countItems()).toBe(1);
+  });
 
 });

@@ -5,17 +5,24 @@
 ![license](https://img.shields.io/github/license/buildonaxis/axis)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
 ![build](https://img.shields.io/badge/build-passing-brightgreen)
-![tests](https://img.shields.io/badge/tests-153%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-182%20passing-brightgreen)
 
+````md
 A modern TypeScript SDK for EPCIS, GS1 identifiers, and traceability applications.
 
-Axis helps developers build serialization, supply chain, inventory, product intelligence, and traceability software without starting from raw EPCIS XML.
+**Axis is a framework for building traceability software—not just another EPCIS parser.**
 
-Instead of forcing developers to work directly with XML nodes, Axis provides modern TypeScript objects for EPCIS documents, events, identifiers, validation, queries, and traceability graphs.
+Axis helps developers build serialization, inventory management, supply chain visibility, product intelligence, and recall management software without starting from raw EPCIS XML.
+
+Instead of forcing developers to work directly with XML nodes, Axis provides strongly typed TypeScript objects for EPCIS documents, events, identifiers, inventory, genealogy, and application development.
 
 ```bash
 npm install @buildonaxis/core
+````
+
 ```
+```
+
 
 ---
 
@@ -165,15 +172,52 @@ graph TD
 
 ---
 
-## Validation
+````md
+## Inventory APIs
 
-Validate EPCIS documents before processing or export.
+Reconstruct serialized inventory directly from EPCIS Aggregation Events.
 
 ```ts
-const result = validateDocument(document);
+const inventory = InventorySnapshot.fromDocument(document);
 
-console.log(result.valid);
+inventory.statistics();
+
+inventory.rootContainers();
+
+inventory.containerView(pallet);
+
+inventory.record(item);
+
+inventory.hierarchy();
+````
+
+Built-in capabilities include:
+
+* Inventory reconstruction
+* Parent / child relationships
+* Root container discovery
+* Inventory statistics
+* Container views
+* Inventory hierarchy
+* Relationship exports
+* Tabular inventory views
+
+---
+
+## Validation
+
+A comprehensive validation framework is planned for an upcoming release.
+
+Future capabilities include:
+
+* EPCIS document validation
+* GS1 compliance rules
+* Custom validation profiles
+* Regulatory validation packs
+
 ```
+```
+
 
 ---
 
@@ -245,13 +289,17 @@ console.log(graph.toMermaid());
 
 Axis includes several runnable examples.
 
+```md
 | Example | Description |
 |----------|-------------|
-| [Product Genealogy](./examples/product-genealogy) | Build product relationship graphs |
 | [Barcode Parsing](./examples/barcode-parsing) | Parse GS1 barcodes and identifiers |
 | [Generate EPCIS](./examples/generate-epcis) | Generate EPCIS JSON and XML |
+| [Inventory Reconstruction](./examples/inventory) | Build serialized inventory from Aggregation Events |
 | [Parse EPCIS](./examples/parse-epcis) | Convert EPCIS XML into domain objects |
+| [Product Genealogy](./examples/product-genealogy) | Build product relationship graphs |
 | [Recall Analysis](./examples/recall-analysis) | Perform genealogy and impact analysis |
+```
+
 
 ---
 
@@ -300,6 +348,7 @@ Examples include:
 
 ---
 
+````md
 # Architecture
 
 ```text
@@ -314,17 +363,20 @@ EPCIS Events
        ▼
 EPCIS Documents
        │
-       ▼
-Validation
-       │
-       ▼
-Traceability Graphs
-       │
-       ▼
-Applications
+       ├──────────────┐
+       ▼              ▼
+Inventory        Genealogy
+       │              │
+       └──────┬───────┘
+              ▼
+     Traceability Applications
+````
+
+Axis provides the application layer between raw EPCIS data and production software.
+
+```
 ```
 
-Axis provides the domain layer between raw EPCIS data and business applications.
 
 ---
 
@@ -358,26 +410,30 @@ Use Axis with:
 
 ---
 
+```md
 # Roadmap
 
-## Current
+## Available Today
 
-- EPCIS Domain Model
-- EPCIS Parsing
-- EPCIS Generation
-- GS1 Identifier Support
-- Validation
-- Traceability Graphs
+- ✅ EPCIS Domain Model
+- ✅ EPCIS Parsing
+- ✅ EPCIS Generation
+- ✅ GS1 Identifier Support
+- ✅ Inventory Reconstruction
+- ✅ Inventory Query APIs
+- ✅ Inventory Hierarchy
+- ✅ Traceability Graphs
 
-## Future
+## Coming Next
 
-- Query Engine
+- Validation Framework
 - Advanced Validation Profiles
 - Digital Link Support
 - Master Data APIs
 - Graph Visualization Components
 - Traceability Analytics
 - Partner Integration Helpers
+```
 
 ---
 

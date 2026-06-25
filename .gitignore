@@ -20,3 +20,10 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# Vitest cache
+.vite/
+**/.vite/
+
+# Workspace node modules
+packages/*/node_modules/

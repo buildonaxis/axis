@@ -1,0 +1,19 @@
+{
+  "name": "inventory",
+  "version": "1.0.0",
+  "description": "This example demonstrates how to reconstruct a serialized inventory from EPCIS Aggregation Events using the Axis SDK.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@buildonaxis/core": "^0.4.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.22.4"
+  }
+}

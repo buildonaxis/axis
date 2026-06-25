@@ -269,14 +269,6 @@ roots(): string[] {
   return [...epcs];
   }
 
-  items(): string[] {
-    return this.all().filter((epc) => !this.isContainer(epc));
-  }
-
-  containers(): string[] {
-    return this.all().filter((epc) => this.isContainer(epc));
-  }
-
   looseItems(): string[] {
     return this.items().filter((epc) => !this.parentOf(epc));
   }

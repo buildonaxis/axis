@@ -128,7 +128,7 @@ console.log(inventory.pathToRoot(item2.toEpcUri()));
 // -----------------------------------------------------------------------------
 
 console.log("\n=== Inventory Record ===");
-console.log(inventory.record(item2.toEpcUri()));
+console.log(inventory.find(item2.toEpcUri()));
 
 // -----------------------------------------------------------------------------
 // Container View

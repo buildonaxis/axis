@@ -43,3 +43,4 @@ export * from "./XmlParser.js";
 export * from "./XmlWriter.js";
 export * from "./Validation.js";
 export * from "./identifiers.js";
+export * from "./InventorySnapshot";
